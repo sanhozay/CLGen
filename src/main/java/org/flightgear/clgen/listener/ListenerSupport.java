@@ -54,8 +54,7 @@ class ListenerSupport {
       * @return a string showing the context of the error
       */
      static String errorContext(final int line, final int charPositionInLine,
-         final CommonTokenStream tokenStream
-     ) {
+             final CommonTokenStream tokenStream) {
          StringBuilder sb = new StringBuilder();
          CharStream stream = tokenStream.getTokenSource().getInputStream();
          String[] lines = stream.toString().split("\n");

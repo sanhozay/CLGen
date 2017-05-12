@@ -165,8 +165,7 @@ public class CLGen {
      * the parse tree and building the checks using the items lookup table.
      */
     private AbstractSyntaxTree buildAST(final Map<String, Item> items,
-            final SpecificationContext context
-    ) {
+            final SpecificationContext context) {
         ChecklistListener checklistListener = new ChecklistListener(items);
         checklistListener.addErrorListener(new WalkErrorListener(tokenStream));
         walker.walk(checklistListener, context);
