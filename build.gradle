@@ -1,0 +1,52 @@
+apply plugin: 'antlr'
+apply plugin: 'groovy'
+apply plugin: 'java'
+
+project.version = '1.0.0'
+
+defaultTasks 'build'
+
+processResources {
+    filesMatching('clgen.properties') {
+        expand projectVersion: project.version
+    }
+} 
+
+generateGrammarSource {
+    arguments += ["-package", "org.flightgear.clgen"]
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    antlr 'org.antlr:antlr4:4.7'
+    compile 'org.antlr:antlr4-runtime:4.7'
+    compile 'org.apache.velocity:velocity:1.7'
+    compile 'org.codehaus.groovy:groovy-all:2.4.11'
+    testCompile 'cglib:cglib-nodep:3.2.5'
+    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+}
+
+jar {
+    manifest {
+        attributes('Main-Class': 'org.flightgear.clgen.CLGen')
+    }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+task release(type: Zip, dependsOn: build) {
+    println "Don't forget to update version number in both scripts"
+    destinationDir = file('build/release')
+    into("CLGen-${project.version}") {
+        from file('clgen')
+        from file('clgen.bat')
+        from file('README.md')
+    }
+    into("CLGen-${project.version}/build/libs") {
+        from fileTree('build/libs')
+    }
+}

@@ -1,0 +1,111 @@
+#------------------------------------------------------------------------------
+# CLGen Example
+#------------------------------------------------------------------------------
+
+# When an author is defined, a GPL2 copyright notice is entered
+# at the top of the file.
+#
+author("Flightgear");
+
+#------------------------------------------------------------------------------
+# Items
+#------------------------------------------------------------------------------
+
+# Simple checklist item with a single on/off property
+#
+item("Parking Brake") {
+    p = "controls/gear/brake-parking";
+    state("OFF", p == 0.0) p = 0.0;
+    state("SET", p == 1.0) p = 1.0;
+}
+
+# Simple checklist item with separate property for switch.
+# Also includes a tutorial marker.
+#
+item("Beacon") {
+    p = "systems/electrical/outputs/beacon";
+    s = "controls/switches/beacon";
+    state("OFF", p < 1.0) s = 0;
+    state("ON", p >= 1.0) s = 1;
+    marker(0.1234, -1.2345, 0, 2);
+}
+
+# Example with multiple properties used in the conditions and simple
+# fgcommand with no arguments.
+#
+item("Engines") {
+    e1 = "engines/engine[0]/running";
+    e2 = "engines/engine[1]/running";
+    state("STOPPED", !(e1 || e2)) fgcommand("stop-engines");
+    state("RUNNING", e1 && e2) fgcommand("start-engines");
+}
+
+# Example with more complex condition, fgcommand with arguments and
+# multiple bindings.
+#
+item("Mixture") {
+    m1 = "controls/engines/engine[0]/mixture";   
+    m2 = "controls/engines/engine[1]/mixture";   
+    state("CUTOFF", m1 < 0.05 && m2 < 0.05) {
+        fgcommand("property-interpolate", property=m1, value=0.0, rate=0.5);
+        fgcommand("property-interpolate", property=m2, value=0.0, rate=0.5);
+    }
+    state("FULL RICH", m1 > 0.95 && m2 > 0.95) {
+        fgcommand("property-interpolate", property=m1, value=1.0, rate=0.5);
+        fgcommand("property-interpolate", property=m2, value=1.0, rate=0.5);
+    }
+}
+
+# Example with conditional binding
+#
+item("Elevator Trim") {
+    trim = "controls/flight/elevator-trim";
+    variant = "sim/aero";
+    state("TAKEOFF", trim < 0 && trim > -0.2) {
+        if (variant == "777-200") trim = -0.1;
+        if (variant == "777-300") trim = -0.15;
+    }
+}
+
+# Example of an item with no condition.
+#
+item("Fuel Quantity") {
+    state("CHECK") {
+        fgcommand("dialog-show", dialog-name="fuel-and-payload-dialog");
+    }
+}
+
+# Example of an item with no condition and no bindings
+#
+item("Propeller") {
+    state("CLEAR");
+}
+
+#------------------------------------------------------------------------------
+# Checklists
+#------------------------------------------------------------------------------
+
+# Typical checklist
+#
+checklist("Example") {
+    check("Parking Brake", "SET");
+    check("Beacon", "OFF");
+    check("Engines", "STOPPED");
+    check("Mixture", "CUTOFF");
+    check("Elevator Trim", "TAKEOFF");
+}
+
+# Paged checklist, including an example with additional value elements
+#
+checklist("Paged") {
+    page {
+        check("Parking Brake", "SET");
+        check("Beacon", "ON");
+        check("Mixture", "FULL RICH");
+        check("Propeller", "CLEAR", "(use the walker to check)");
+    }
+    page {
+        check("Engines", "RUNNING");
+        check("Parking Brake", "OFF");
+    }
+}
