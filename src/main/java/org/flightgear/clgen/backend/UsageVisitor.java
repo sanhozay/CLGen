@@ -16,12 +16,9 @@
  */
 package org.flightgear.clgen.backend;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.flightgear.clgen.ast.AbstractSyntaxTree;
 import org.flightgear.clgen.ast.Check;
@@ -39,10 +36,10 @@ public class UsageVisitor extends AbstractVisitor {
 
     private class ItemUsage {
         public int count = 0;
-        public final Map<String, Integer> stateUsages = new HashMap<>();
+        public final Map<String, Integer> stateUsages = new TreeMap<>();
     }
 
-    private final Map<String, ItemUsage> itemUsages = new HashMap<>();
+    private final Map<String, ItemUsage> itemUsages = new TreeMap<>();
     private int warnings = 0;
 
     public UsageVisitor(final Map<String, Item> items) {
@@ -67,26 +64,23 @@ public class UsageVisitor extends AbstractVisitor {
 
     @Override
     public void exit(final AbstractSyntaxTree ast) {
-        List<String> itemNames = new ArrayList<>(itemUsages.keySet());
-        Collections.sort(itemNames);
-        for (String itemName : itemNames) {
-            ItemUsage usage = itemUsages.get(itemName);
-            if (usage.count == 0) {
-                System.out.format("warning: item '%s' is not used in any checklist\n", itemName);
+        for (Entry<String, ItemUsage> itemUsage : itemUsages.entrySet()) {
+            if (itemUsage.getValue().count == 0) {
+                System.out.format(
+                    "warning: item '%s' is not used in any checklist\n",
+                    itemUsage.getKey()
+                );
                 ++warnings;
                 continue;
             }
-            List<String> stateNames = new ArrayList<>(usage.stateUsages.keySet());
-            Collections.sort(stateNames);
-            for (String stateName: stateNames) {
-                Integer count = usage.stateUsages.get(stateName);
-                if (count == 0) {
+            Map<String, Integer> stateUsages = itemUsage.getValue().stateUsages;
+            for (Entry<String, Integer> stateUsage : stateUsages.entrySet())
+                if (stateUsage.getValue() == 0) {
                     System.out.format("warning: state '%s' in item '%s' is not used\n",
-                        stateName, itemName
+                        stateUsage.getKey(), itemUsage.getKey()
                     );
                     ++warnings;
                 }
-            }
         }
     }
 
