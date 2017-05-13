@@ -19,6 +19,7 @@ package org.flightgear.clgen.backend;
 import org.flightgear.clgen.ast.AbstractSyntaxTree;
 import org.flightgear.clgen.ast.Check;
 import org.flightgear.clgen.ast.Checklist;
+import org.flightgear.clgen.ast.Item;
 import org.flightgear.clgen.ast.Marker;
 import org.flightgear.clgen.ast.Page;
 import org.flightgear.clgen.ast.State;
@@ -51,6 +52,9 @@ public class AbstractVisitor implements Visitor {
 
     @Override
     public void enter(final Check check) {}
+
+    @Override
+    public void enter(final Item item) {}
 
     @Override
     public void enter(final State state) {}

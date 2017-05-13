@@ -42,15 +42,23 @@ class TestVisitable extends Specification {
     def "Check that a check accepts its visitor"() {
         given:  def item = Mock(Item);
         and:    def state = Mock(State);
-        and:    def coord = Mock(Coordinate, constructorArgs: [0, 0, 0])
-        and:    def marker = Mock(Marker, constructorArgs: [coord, 0])
         and:    def check = new Check(item, state);
         when:   check.accept(visitor)
         then:   1 * visitor.enter(check)
         and:    1 * state.accept(visitor)
-        and:    (1.._) * item.marker >> marker
-        and:    1 * marker.accept(visitor)
+        and:    1 * item.accept(visitor)
         and:    1 * visitor.exit(check)
+    }
+
+    def "Check that an item accepts its visitor"() {
+        given:  def item = new Item();
+        and:    def coord = Mock(Coordinate, constructorArgs: [0, 0, 0])
+        and:    def marker = Mock(Marker, constructorArgs: [coord, 0])
+        and:    item.marker = marker
+        when:   item.accept(visitor)
+        then:   1 * visitor.enter(item)
+        and:    1 * marker.accept(visitor)
+        and:    1 * visitor.exit(item)
     }
 
     def "Check that a checklist accepts its visitor"() {

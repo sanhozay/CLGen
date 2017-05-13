@@ -24,7 +24,7 @@ import java.util.Map;
  *
  * @author Richard Senior
  */
-public class Item {
+public class Item implements Visitable {
 
     private final String name;
     private final Map<String, State> states = new HashMap<>();
@@ -81,6 +81,14 @@ public class Item {
      */
     public void setMarker(final Marker marker) {
         this.marker = marker;
+    }
+
+    @Override
+    public void accept(final Visitor visitor) {
+        visitor.enter(this);
+        if (marker != null)
+            marker.accept(visitor);
+        visitor.exit(this);
     }
 
 }

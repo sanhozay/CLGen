@@ -38,6 +38,7 @@ public interface Visitor {
     void enter(final Checklist checklist);
     void enter(final Page page);
     void enter(final Check check);
+    void enter(final Item state);
     void enter(final State state);
     void enter(final ValueBinding binding);
     void enter(final CommandBinding binding);
@@ -52,6 +53,7 @@ public interface Visitor {
     default void exit(final Checklist checklist) {}
     default void exit(final Page page) {}
     default void exit(final Check check) {}
+    default void exit(final Item state) {}
     default void exit(final State state) {}
     default void exit(final ValueBinding binding) {}
     default void exit(final CommandBinding binding) {}
