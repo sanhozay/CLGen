@@ -110,6 +110,15 @@ public class ChecklistListener extends CLGenBaseListener {
 
     @Override
     public void exitChecklist(final CLGenParser.ChecklistContext ctx) {
+        if (ast.getChecklists().contains(checklist)) {
+            Token token = (Token)ctx.getChild(0).getPayload();
+            String message = String.format(
+                "Duplicate definition of checklist with title '%s' (ignoring case)",
+                checklist.getTitle()
+            );
+            errorListeners.forEach(l -> l.semanticError(this, token, message));
+            ++errors;
+        }
         ast.addChecklist(checklist);
     }
 
