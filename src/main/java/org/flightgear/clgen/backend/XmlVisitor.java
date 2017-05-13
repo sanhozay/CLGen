@@ -44,10 +44,10 @@ import org.flightgear.clgen.ast.Page;
 import org.flightgear.clgen.ast.bindings.CommandBinding;
 import org.flightgear.clgen.ast.bindings.PropertyBinding;
 import org.flightgear.clgen.ast.bindings.ValueBinding;
-import org.flightgear.clgen.ast.conditions.BinaryExpression;
+import org.flightgear.clgen.ast.conditions.BinaryCondition;
 import org.flightgear.clgen.ast.conditions.Condition;
 import org.flightgear.clgen.ast.conditions.Terminal;
-import org.flightgear.clgen.ast.conditions.UnaryExpression;
+import org.flightgear.clgen.ast.conditions.UnaryCondition;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -201,26 +201,26 @@ public class XmlVisitor extends AbstractVisitor {
     }
 
     @Override
-    public void enter(final BinaryExpression expression) {
-        Element e = document.createElement(expression.getOperator().toString());
+    public void enter(final BinaryCondition condition) {
+        Element e = document.createElement(condition.getOperator().toString());
         elements.peek().appendChild(e);
         elements.push(e);
     }
 
     @Override
-    public void exit(final BinaryExpression expression) {
+    public void exit(final BinaryCondition condition) {
         elements.pop();
     }
 
     @Override
-    public void enter(final UnaryExpression expression) {
-        Element e = document.createElement(expression.getOperator().toString());
+    public void enter(final UnaryCondition condition) {
+        Element e = document.createElement(condition.getOperator().toString());
         elements.peek().appendChild(e);
         elements.push(e);
     }
 
     @Override
-    public void exit(final UnaryExpression expression) {
+    public void exit(final UnaryCondition condition) {
         elements.pop();
     }
 

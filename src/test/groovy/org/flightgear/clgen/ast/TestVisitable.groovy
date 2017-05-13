@@ -1,15 +1,5 @@
 package org.flightgear.clgen.ast;
 
-import org.flightgear.clgen.ast.bindings.CommandBinding
-import org.flightgear.clgen.ast.bindings.PropertyBinding
-import org.flightgear.clgen.ast.bindings.ValueBinding
-import org.flightgear.clgen.ast.conditions.BinaryExpression
-import org.flightgear.clgen.ast.conditions.Condition
-import org.flightgear.clgen.ast.conditions.Operator
-import org.flightgear.clgen.ast.conditions.Terminal
-import org.flightgear.clgen.ast.conditions.TerminalType
-import org.flightgear.clgen.ast.conditions.UnaryExpression
-
 import spock.lang.Specification;
 
 class TestVisitable extends Specification {
@@ -27,7 +17,7 @@ class TestVisitable extends Specification {
     }
 
     def "Check that a binary expression accepts its visitor"() {
-        given:  def expression = new BinaryExpression(Operator.AND)
+        given:  def expression = new BinaryCondition(Operator.AND)
         and:    def lhs = Mock(Condition);
         and:    def rhs = Mock(Condition);
         and:    expression.addChild(lhs)
@@ -140,7 +130,7 @@ class TestVisitable extends Specification {
     }
 
     def "Check that a unary expression accepts its visitor"() {
-        given:  def expression = new UnaryExpression(Operator.NOT)
+        given:  def expression = new UnaryCondition(Operator.NOT)
         and:    def condition = Mock(Condition);
         and:    expression.addChild(condition)
         when:   expression.accept(visitor)

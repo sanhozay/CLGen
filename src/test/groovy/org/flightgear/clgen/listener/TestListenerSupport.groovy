@@ -1,7 +1,5 @@
 package org.flightgear.clgen.listener;
 
-import static org.flightgear.clgen.listener.ListenerSupport.unquote
-
 import spock.lang.Specification;
 
 class TestListenerSupport extends Specification {

@@ -19,16 +19,17 @@ package org.flightgear.clgen.ast.conditions;
 import org.flightgear.clgen.ast.Visitor;
 
 /**
- * Unary expression.
+ * Binary condition.
  *
  * @author Richard Senior
  */
-public class UnaryExpression extends AbstractCondition {
+public class BinaryCondition extends AbstractCondition {
 
     private final Operator operator;
-    private AbstractCondition operand;
+    private AbstractCondition lhs = null;
+    private AbstractCondition rhs = null;
 
-    public UnaryExpression(final Operator operator) {
+    public BinaryCondition(final Operator operator) {
         this.operator = operator;
     }
 
@@ -36,25 +37,27 @@ public class UnaryExpression extends AbstractCondition {
         return operator;
     }
 
-    public AbstractCondition getOperand() {
-        return operand;
-    }
-
     @Override
     public void addChild(final AbstractCondition child) {
-        operand = child;
+        if (lhs == null)
+            lhs = child;
+        else {
+            assert rhs == null;
+            rhs = child;
+        }
     }
 
     @Override
     public void accept(final Visitor visitor) {
         visitor.enter(this);
-        operand.accept(visitor);
+        lhs.accept(visitor);
+        rhs.accept(visitor);
         visitor.exit(this);
     }
 
     @Override
     public String toString() {
-        return String.format("UnaryExpression: %s %s", operator, operand);
+        return String.format("BinaryCondition: %s %s %s", lhs, operator, rhs);
     }
 
 }

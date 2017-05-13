@@ -39,12 +39,12 @@ import org.flightgear.clgen.ast.bindings.CommandBinding;
 import org.flightgear.clgen.ast.bindings.PropertyBinding;
 import org.flightgear.clgen.ast.bindings.ValueBinding;
 import org.flightgear.clgen.ast.conditions.AbstractCondition;
-import org.flightgear.clgen.ast.conditions.BinaryExpression;
+import org.flightgear.clgen.ast.conditions.BinaryCondition;
 import org.flightgear.clgen.ast.conditions.Condition;
 import org.flightgear.clgen.ast.conditions.Operator;
 import org.flightgear.clgen.ast.conditions.Terminal;
 import org.flightgear.clgen.ast.conditions.TerminalType;
-import org.flightgear.clgen.ast.conditions.UnaryExpression;
+import org.flightgear.clgen.ast.conditions.UnaryCondition;
 
 /**
  * Listener that builds a lookup table of items.
@@ -136,7 +136,7 @@ public class ItemListener extends CLGenBaseListener {
 
     @Override
     public void enterNotCondition(final NotConditionContext ctx) {
-        UnaryExpression e = new UnaryExpression(Operator.NOT);
+        UnaryCondition e = new UnaryCondition(Operator.NOT);
         conditions.peek().addChild(e);
         conditions.push(e);
     }
@@ -148,7 +148,7 @@ public class ItemListener extends CLGenBaseListener {
 
     @Override
     public void enterAndCondition(final AndConditionContext ctx) {
-        BinaryExpression e = new BinaryExpression(Operator.AND);
+        BinaryCondition e = new BinaryCondition(Operator.AND);
         conditions.peek().addChild(e);
         conditions.push(e);
     }
@@ -160,7 +160,7 @@ public class ItemListener extends CLGenBaseListener {
 
     @Override
     public void enterOrCondition(final OrConditionContext ctx) {
-        BinaryExpression e = new BinaryExpression(Operator.OR);
+        BinaryCondition e = new BinaryCondition(Operator.OR);
         conditions.peek().addChild(e);
         conditions.push(e);
     }
@@ -171,15 +171,15 @@ public class ItemListener extends CLGenBaseListener {
     }
 
     @Override
-    public void enterBinaryExpression(final BinaryExpressionContext ctx) {
+    public void enterBinaryCondition(final BinaryConditionContext ctx) {
         Operator op = Operator.fromString(ctx.getChild(1).getText());
-        BinaryExpression e = new BinaryExpression(op);
+        BinaryCondition e = new BinaryCondition(op);
         conditions.peek().addChild(e);
         conditions.push(e);
     }
 
     @Override
-    public void exitBinaryExpression(final BinaryExpressionContext ctx) {
+    public void exitBinaryCondition(final BinaryConditionContext ctx) {
         conditions.pop();
     }
 

@@ -27,10 +27,10 @@ import org.flightgear.clgen.ast.Visitor;
 import org.flightgear.clgen.ast.bindings.CommandBinding;
 import org.flightgear.clgen.ast.bindings.PropertyBinding;
 import org.flightgear.clgen.ast.bindings.ValueBinding;
-import org.flightgear.clgen.ast.conditions.BinaryExpression;
+import org.flightgear.clgen.ast.conditions.BinaryCondition;
 import org.flightgear.clgen.ast.conditions.Condition;
 import org.flightgear.clgen.ast.conditions.Terminal;
-import org.flightgear.clgen.ast.conditions.UnaryExpression;
+import org.flightgear.clgen.ast.conditions.UnaryCondition;
 
 /**
  * Abstract visitor.
@@ -72,10 +72,10 @@ public class AbstractVisitor implements Visitor {
     public void enter(final Condition condition) {}
 
     @Override
-    public void enter(final BinaryExpression expression) {}
+    public void enter(final BinaryCondition condition) {}
 
     @Override
-    public void enter(final UnaryExpression expression) {}
+    public void enter(final UnaryCondition condition) {}
 
     @Override
     public void enter(final Terminal terminal) {}

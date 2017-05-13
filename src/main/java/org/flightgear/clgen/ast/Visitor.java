@@ -19,10 +19,10 @@ package org.flightgear.clgen.ast;
 import org.flightgear.clgen.ast.bindings.CommandBinding;
 import org.flightgear.clgen.ast.bindings.PropertyBinding;
 import org.flightgear.clgen.ast.bindings.ValueBinding;
-import org.flightgear.clgen.ast.conditions.BinaryExpression;
+import org.flightgear.clgen.ast.conditions.BinaryCondition;
 import org.flightgear.clgen.ast.conditions.Condition;
 import org.flightgear.clgen.ast.conditions.Terminal;
-import org.flightgear.clgen.ast.conditions.UnaryExpression;
+import org.flightgear.clgen.ast.conditions.UnaryCondition;
 import org.flightgear.clgen.backend.AbstractVisitor;
 
 /**
@@ -44,8 +44,8 @@ public interface Visitor {
     void enter(final CommandBinding binding);
     void enter(final PropertyBinding binding);
     void enter(final Condition condition);
-    void enter(final BinaryExpression expression);
-    void enter(final UnaryExpression expression);
+    void enter(final BinaryCondition condition);
+    void enter(final UnaryCondition condition);
     void enter(final Terminal terminal);
     void enter(final Marker marker);
 
@@ -59,8 +59,8 @@ public interface Visitor {
     default void exit(final CommandBinding binding) {}
     default void exit(final PropertyBinding binding) {}
     default void exit(final Condition condition) {}
-    default void exit(final BinaryExpression expression) {}
-    default void exit(final UnaryExpression expression) {}
+    default void exit(final BinaryCondition condition) {}
+    default void exit(final UnaryCondition condition) {}
     default void exit(final Terminal terminal) {}
     default void exit(final Marker marker) {}
 
