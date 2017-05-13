@@ -32,10 +32,12 @@ item("Altimeter") {
 item("Autopilot") {
     active = "autopilot/locks/active";
     pitch = "autopilot/sperry/pitch-select";
+    turn = "autopilot/sperry/turn-select";
     switch = "autopilot/sperry/main-switch";
     variant = "sim/aero";
-    state("CHECK", !active && pitch > 0) {
+    state("CHECK", !active && pitch > 0 && turn == 0) {
         fgcommand("switch-assign", property=switch, value=0);
+        fgcommand("property-interpolate", property=turn, value=0, rate=20);
         if (variant == "pup100")
             fgcommand("property-interpolate", property=pitch, value=5, rate=2);
         if (variant == "pup150" || variant == "pup160")
@@ -53,7 +55,7 @@ item("Beacon") {
     state("ON", volts > 0) {
         fgcommand("switch-assign", property=breaker, value=1);
     }
-    state("ON & CHECK", volts > 0 || beaconChecked) {
+    state("CHECK", volts > 0 || beaconChecked) {
         fgcommand("switch-assign", property=breaker, value=1);
     }
 }
@@ -172,7 +174,7 @@ item("Main Battery") {
     }
     navChecked = "sim/checklists/status/nav-lights";
     beaconChecked = "sim/checklists/status/beacon";
-    state("ON & CHECK", volts > 0 || navChecked && beaconChecked) {
+    state("CHECK", volts > 0 || navChecked && beaconChecked) {
         fgcommand("switch-assign", property=batterySwitch, value=1);
     }
 }
@@ -194,7 +196,7 @@ item("Navigation Lights") {
         fgcommand("switch-assign", property=breaker, value=1);
     }
     navChecked = "sim/checklists/status/nav-lights";
-    state("ON & CHECK", volts > 0 || navChecked) {
+    state("CHECK", volts > 0 || navChecked) {
         fgcommand("switch-assign", property=breaker, value=1);
     }
 }
@@ -305,9 +307,9 @@ item("Trim") {
 checklist("Before Starting Engines") {
     check("Magnetos", "OFF");
     check("Parking Brake", "ON");
-    check("Main Battery", "ON & CHECK");
-    check("Navigation Lights", "ON & CHECK");
-    check("Beacon", "ON & CHECK");
+    check("Main Battery", "CHECK");
+    check("Navigation Lights", "CHECK");
+    check("Beacon", "CHECK");
     check("Beacon", "OFF");
     check("Main Battery", "OFF");
     check("Refuel", "AS REQUIRED");
