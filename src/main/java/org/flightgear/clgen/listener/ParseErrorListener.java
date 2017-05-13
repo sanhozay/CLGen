@@ -31,11 +31,9 @@ import org.antlr.v4.runtime.Recognizer;
 public class ParseErrorListener extends BaseErrorListener {
 
     @Override
-    public void syntaxError(final Recognizer<?, ?> recognizer,
-        final Object offendingSymbol,
-        final int line, final int charPositionInLine,
-        final String msg, final RecognitionException e
-    ) {
+    public void syntaxError(final Recognizer<?, ?> recognizer, final Object offendingSymbol,
+            final int line, final int charPositionInLine,
+            final String msg, final RecognitionException e) {
         System.err.format("error at line %d: %s\n", line, msg);
         CommonTokenStream tokenStream = (CommonTokenStream)recognizer.getInputStream();
         System.err.println(errorContext(line, charPositionInLine, tokenStream));

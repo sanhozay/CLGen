@@ -293,12 +293,8 @@ public class XmlVisitor extends AbstractVisitor {
 
     // Other methods
 
-    private void appendText(
-        final Element parent,
-        final String node,
-        final Object value,
-        final String type
-    ) {
+    private void appendText(final Element parent, final String node,
+            final Object value, final String type) {
         Element e = document.createElement(node);
         parent.appendChild(e);
         if (type != null)
@@ -306,18 +302,11 @@ public class XmlVisitor extends AbstractVisitor {
         e.appendChild(document.createTextNode(value.toString()));
     }
 
-    private void appendText(
-        final Element parent,
-        final String node,
-        final Object value
-    ) {
+    private void appendText(final Element parent, final String node, final Object value) {
         appendText(parent, node, value, null);
     }
 
-    private void appendTerminal(
-        final Element parent,
-        final Terminal terminal
-    ) {
+    private void appendTerminal(final Element parent, final Terminal terminal) {
         switch (terminal.getType()) {
         case PROPERTY:
             appendText(parent, "property", terminal.getValue());
@@ -342,8 +331,7 @@ public class XmlVisitor extends AbstractVisitor {
     }
 
     private void write(final Document document, final String filename,
-        final XmlPostProcessor postProcessor)
-    throws GeneratorException {
+            final XmlPostProcessor postProcessor) throws GeneratorException {
         Path p = outputDir.resolve(filename);
         StringWriter sw = new StringWriter();
         try {

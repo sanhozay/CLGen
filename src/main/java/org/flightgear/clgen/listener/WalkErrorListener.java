@@ -35,8 +35,7 @@ public class WalkErrorListener extends SemanticErrorListener {
 
     @Override
     public void semanticError(final ParseTreeListener listener,
-        final Token token, final String msg
-    ) {
+            final Token token, final String msg) {
         System.err.format("error at line %d: %s\n", token.getLine(), msg);
         System.err.println(errorContext(token.getLine(),
             token.getCharPositionInLine(), tokenStream

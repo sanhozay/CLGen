@@ -221,7 +221,8 @@ with the CLGen DSL.
 
 ### Keywords
 
-Keywords cannot be used as aliases.
+Keywords cannot be used as aliases. CLGen is case sensitive, so upper-case
+versions of keywords can be used as aliases.
 
 `author`  
 `check`  
@@ -253,6 +254,9 @@ Therafter, item definitions must come before checklist definitions.
         ...
     }
 
+Different items with the same title are not allowed. The comparison is case
+sensitive.
+
 ### Items
 
 Items are introduced with the `item` keyword.
@@ -279,6 +283,8 @@ Alias names must start with a letter or underscore. The remaining characters
 must be letters, numbers, underscore or hyphens. These are valid identifiers:
 
     beacon, engine0, fuel_pump, outputVolts, power-button, _switch
+
+Redefinition of an alias within an item is not allowed.
 
 ### Types
 
@@ -333,6 +339,9 @@ The condition is a boolean expression, consisting of the following operators:
 `||`  
 
 The usual precedence and associativity rules apply, e.g. refer to C or Java.
+
+Duplicate state names are not allowed. The comparison is case sensitive but
+it is recommended that uppercase is always used for state names.
 
 Expressions are always defined in terms of variables, e.g.
 
@@ -398,6 +407,11 @@ Checklists and checks are simple structures:
 Each checklist block creates a separate XML file. The title of the file is
 derived from the title. So, in the example above, `clgen` creates a file called
 `before-starting-engines.xml`.
+
+Duplicate checklist titles are not allowed. This comparison is not case
+sensitive, so "Parking" and "parking" are considered the same checklist
+title. This is necessary because output file names are always lower-case and
+the generated filename would be "parking.xml" in both cases.
 
 Checks can also include additional values. These are displayed in the Flightgear
 checklist dialog as additional lines below the state name.

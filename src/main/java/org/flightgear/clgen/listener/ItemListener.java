@@ -76,7 +76,13 @@ public class ItemListener extends CLGenBaseListener {
 
     @Override
     public void exitItem(final ItemContext ctx) {
-        items.put(item.getName(), item);
+        if (items.containsKey(item.getName())) {
+            Token token = (Token)ctx.getChild(0).getPayload();
+            String message = String.format("Duplicate definition of item '%s'", item.getName());
+            errorListeners.forEach(l -> l.semanticError(this, token, message));
+            ++errors;
+        } else
+            items.put(item.getName(), item);
         symbols.clear();
     }
 
@@ -84,6 +90,15 @@ public class ItemListener extends CLGenBaseListener {
     public void enterDeclaration(final DeclarationContext ctx) {
         String key = ctx.getChild(0).getText();
         String value = unquote(ctx.getChild(2).getText());
+        if (symbols.get(key) != null) {
+            Token token = (Token)ctx.getChild(0).getPayload();
+            String message = String.format("Alias '%s' is already defined in item '%s'",
+                key, item.getName()
+            );
+            errorListeners.forEach(l -> l.semanticError(this, token, message));
+            ++errors;
+            return;
+        }
         symbols.put(key, value);
     }
 
@@ -94,6 +109,16 @@ public class ItemListener extends CLGenBaseListener {
 
     @Override
     public void exitState(final StateContext ctx) {
+        if (item.getStates().containsKey(state.getName())) {
+            Token token = (Token)ctx.getChild(2).getPayload();
+            String message = String.format(
+                "Duplicate definition of state '%s' in item '%s'",
+                state.getName(), item.getName()
+            );
+            errorListeners.forEach(l -> l.semanticError(this, token, message));
+            ++errors;
+            return;
+        }
         item.addState(state);
     }
 
@@ -323,7 +348,7 @@ public class ItemListener extends CLGenBaseListener {
         String symbol = parseTree.getText();
         String property = symbols.get(symbol);
         if (property == null) {
-            String message = String.format("Symbol '%s' is not defined in item '%s'",
+            String message = String.format("Alias '%s' is not defined in item '%s'",
                 symbol, item.getName()
             );
             errorListeners.forEach(l -> l.semanticError(this, token, message));
