@@ -1,2 +1,2 @@
-#/usr/bin/env bash
+#!/bin/sh
 java -jar $(dirname $0)/build/libs/CLGen-1.0.0.jar $*
