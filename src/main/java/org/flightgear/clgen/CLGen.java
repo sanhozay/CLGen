@@ -34,6 +34,7 @@ import org.flightgear.clgen.listener.ChecklistListener;
 import org.flightgear.clgen.listener.ItemListener;
 import org.flightgear.clgen.listener.ParseErrorListener;
 import org.flightgear.clgen.listener.WalkErrorListener;
+import org.flightgear.clgen.symbol.SymbolTable;
 
 /**
  * CLGen main class.
@@ -44,6 +45,7 @@ public class CLGen {
 
     private CommonTokenStream tokenStream;
     private final ParseTreeWalker walker = new ParseTreeWalker();
+    private final SymbolTable symbolTable = new SymbolTable();
 
     private final Path input;
     private int errors = 0;
@@ -112,6 +114,7 @@ public class CLGen {
             );
         else {
             Map<String, Item> items = buildItems(context);
+            symbolTable.dump();
             AbstractSyntaxTree ast = buildAST(items, context);
             if (errors != 0) {
                 System.err.format(
@@ -153,7 +156,7 @@ public class CLGen {
      * Scans the parse tree, building a lookup table of checklist items.
      */
     private Map<String, Item> buildItems(final SpecificationContext context) {
-        ItemListener itemListener = new ItemListener();
+        ItemListener itemListener = new ItemListener(symbolTable);
         itemListener.addErrorListener(new WalkErrorListener(tokenStream));
         walker.walk(itemListener, context);
         errors += itemListener.getNumberOfSemanticErrors();

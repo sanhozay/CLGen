@@ -1,5 +1,15 @@
 package org.flightgear.clgen.ast;
 
+import org.flightgear.clgen.ast.bindings.CommandBinding
+import org.flightgear.clgen.ast.bindings.PropertyBinding
+import org.flightgear.clgen.ast.bindings.ValueBinding
+import org.flightgear.clgen.ast.conditions.BinaryCondition
+import org.flightgear.clgen.ast.conditions.Condition
+import org.flightgear.clgen.ast.conditions.Operator
+import org.flightgear.clgen.ast.conditions.Terminal
+import org.flightgear.clgen.ast.conditions.TerminalType
+import org.flightgear.clgen.ast.conditions.UnaryCondition
+
 import spock.lang.Specification;
 
 class TestVisitable extends Specification {
