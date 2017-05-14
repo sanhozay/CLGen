@@ -79,4 +79,9 @@ public class Symbol {
         throw new TypeException(message);
     }
 
+    @Override
+    public String toString() {
+        return String.format(" * %s %s = %s", type, id, expansion);
+    }
+
 }

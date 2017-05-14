@@ -89,11 +89,7 @@ public class SymbolTable {
             System.out.println(scopeEntry.getKey());
             for (Entry<String, Symbol> symbolEntry : scopeEntry.getValue().entrySet()) {
                 Symbol symbol = symbolEntry.getValue();
-                System.out.format(" * %s %s = %s\n",
-                    symbol.getType(),
-                    symbol.getId(),
-                    symbol.getExpansion()
-                );
+                System.out.println(symbol);
             }
         }
     }

@@ -42,7 +42,6 @@ import org.flightgear.clgen.ast.conditions.BinaryCondition;
 import org.flightgear.clgen.ast.conditions.Condition;
 import org.flightgear.clgen.ast.conditions.Operator;
 import org.flightgear.clgen.ast.conditions.Terminal;
-import org.flightgear.clgen.ast.conditions.TerminalType;
 import org.flightgear.clgen.ast.conditions.UnaryCondition;
 import org.flightgear.clgen.symbol.DuplicateSymbolException;
 import org.flightgear.clgen.symbol.Symbol;
@@ -192,31 +191,31 @@ public class ItemListener extends CLGenBaseListener {
     @Override
     public void enterDoubleTerminal(final DoubleTerminalContext ctx) {
         Double d = Double.parseDouble(ctx.getText());
-        conditions.peek().addChild(new Terminal(TerminalType.DOUBLE, d));
+        conditions.peek().addChild(new Terminal(d));
     }
 
     @Override
     public void enterIntegerTerminal(final IntegerTerminalContext ctx) {
         Integer i = Integer.parseInt(ctx.getText());
-        conditions.peek().addChild(new Terminal(TerminalType.INTEGER, i));
+        conditions.peek().addChild(new Terminal(i));
     }
 
     @Override
     public void enterBooleanTerminal(final BooleanTerminalContext ctx) {
         Boolean b = Boolean.parseBoolean(ctx.getText());
-        conditions.peek().addChild(new Terminal(TerminalType.BOOLEAN, b));
+        conditions.peek().addChild(new Terminal(b));
     }
 
     @Override
     public void enterStringTerminal(final StringTerminalContext ctx) {
         String s = unquote(ctx.getText());
-        conditions.peek().addChild(new Terminal(TerminalType.STRING, s));
+        conditions.peek().addChild(new Terminal(s));
     }
 
     @Override
     public void enterIdTerminal(final IdTerminalContext ctx) {
-        String p = lookup((Token)ctx.getChild(0).getPayload());
-        conditions.peek().addChild(new Terminal(TerminalType.PROPERTY, p));
+        Symbol symbol = lookupSymbol((Token)ctx.getChild(0).getPayload());
+        conditions.peek().addChild(new Terminal(symbol));
     }
 
     @Override
@@ -233,45 +232,45 @@ public class ItemListener extends CLGenBaseListener {
 
     @Override
     public void enterAssignInt(final AssignIntContext ctx) {
-        String p = lookup((Token)ctx.getChild(0).getPayload());
-        Integer v = Integer.parseInt(ctx.getChild(2).getText());
-        ValueBinding binding = new ValueBinding(p, v);
+        Symbol symbol = lookupSymbol((Token)ctx.getChild(0).getPayload());
+        Integer value = Integer.parseInt(ctx.getChild(2).getText());
+        ValueBinding binding = new ValueBinding(symbol, value);
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
     }
 
     @Override
     public void enterAssignDouble(final AssignDoubleContext ctx) {
-        String p = lookup((Token)ctx.getChild(0).getPayload());
-        Double v = Double.parseDouble(ctx.getChild(2).getText());
-        ValueBinding binding = new ValueBinding(p, v);
+        Symbol symbol = lookupSymbol((Token)ctx.getChild(0).getPayload());
+        Double value = Double.parseDouble(ctx.getChild(2).getText());
+        ValueBinding binding = new ValueBinding(symbol, value);
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
     }
 
     @Override
     public void enterAssignBool(final CLGenParser.AssignBoolContext ctx) {
-        String p = lookup((Token)ctx.getChild(0).getPayload());
-        Boolean b = Boolean.parseBoolean(ctx.getChild(2).getText());
-        ValueBinding binding = new ValueBinding(p, b);
+        Symbol symbol = lookupSymbol((Token)ctx.getChild(0).getPayload());
+        Boolean value = Boolean.parseBoolean(ctx.getChild(2).getText());
+        ValueBinding binding = new ValueBinding(symbol, value);
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
     }
 
     @Override
     public void enterAssignString(final AssignStringContext ctx) {
-        String p = lookup((Token)ctx.getChild(0).getPayload());
-        String s = unquote(ctx.getChild(2).getText());
-        ValueBinding binding = new ValueBinding(p, s);
+        Symbol symbol = lookupSymbol((Token)ctx.getChild(0).getPayload());
+        String value = unquote(ctx.getChild(2).getText());
+        ValueBinding binding = new ValueBinding(symbol, value);
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
     }
 
     @Override
     public void enterAssignId(final AssignIdContext ctx) {
-        String p = lookup((Token)ctx.getChild(0).getPayload());
-        String v = lookup((Token)ctx.getChild(2).getPayload());
-        PropertyBinding binding = new PropertyBinding(p, v);
+        Symbol lval = lookupSymbol((Token)ctx.getChild(0).getPayload());
+        Symbol rval = lookupSymbol((Token)ctx.getChild(2).getPayload());
+        PropertyBinding binding = new PropertyBinding(lval, rval);
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
     }
@@ -315,8 +314,8 @@ public class ItemListener extends CLGenBaseListener {
     @Override
     public void enterIdParam(final IdParamContext ctx) {
         String n = ctx.getChild(0).getText();
-        String v = lookup((Token)ctx.getChild(2).getPayload());
-        commandBinding.addParam(n, v);
+        Symbol symbol = lookupSymbol((Token)ctx.getChild(2).getPayload());
+        commandBinding.addParam(n, symbol);
     }
 
     @Override
@@ -349,7 +348,7 @@ public class ItemListener extends CLGenBaseListener {
         errorListeners.clear();
     }
 
-    private String lookup(final Token token) {
+    private Symbol lookupSymbol(final Token token) {
         Symbol symbol = symbolTable.lookup(item.getName(), token.getText());
         if (symbol == null) {
             String message = String.format("Alias '%s' is not defined in item '%s'",
@@ -357,9 +356,9 @@ public class ItemListener extends CLGenBaseListener {
             );
             errorListeners.forEach(l -> l.semanticError(this, token, message));
             ++errors;
-            return "not-found";
+            return null;
         }
-        return symbol.getExpansion();
+        return symbol;
     }
 
 }

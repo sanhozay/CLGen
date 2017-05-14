@@ -48,6 +48,8 @@ import org.flightgear.clgen.ast.conditions.BinaryCondition;
 import org.flightgear.clgen.ast.conditions.Condition;
 import org.flightgear.clgen.ast.conditions.Terminal;
 import org.flightgear.clgen.ast.conditions.UnaryCondition;
+import org.flightgear.clgen.symbol.Symbol;
+import org.flightgear.clgen.symbol.Type;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -233,8 +235,8 @@ public class XmlVisitor extends AbstractVisitor {
     public void enter(final ValueBinding binding) {
         Element e = document.createElement("binding");
         appendText(e, "command", "property-assign");
-        appendText(e, "property", binding.getProperty());
-        appendText(e, "value", binding.getValue(), binding.getType());
+        appendText(e, "property", binding.getSymbol().getExpansion());
+        appendText(e, "value", binding.getValue(), binding.getSymbol().getType());
         elements.peek().appendChild(e);
         elements.push(e);
     }
@@ -250,10 +252,13 @@ public class XmlVisitor extends AbstractVisitor {
         appendText(e, "command", binding.getCommand());
         for (String name : binding.getParams().keySet()) {
             Object value = binding.getParams().get(name);
-            if (value instanceof String && !"property".equals(name))
-                appendText(e, name, value, "string");
+            if (value instanceof Symbol) {
+                Symbol symbol = (Symbol)value;
+                appendText(e, name, symbol.getExpansion());
+            } else if (value instanceof String)
+                appendText(e, name, value, Type.STRING);
             else if (value instanceof Boolean)
-                appendText(e, name, value, "bool");
+                appendText(e, name, value, Type.BOOL);
             else
                 appendText(e, name, value);
         }
@@ -270,8 +275,8 @@ public class XmlVisitor extends AbstractVisitor {
     public void enter(final PropertyBinding binding) {
         Element e = document.createElement("binding");
         appendText(e, "command", "property-assign");
-        appendText(e, "property", binding.getProperty());
-        appendText(e, "property", binding.getValue());
+        appendText(e, "property", binding.getLval());
+        appendText(e, "property", binding.getRval());
         elements.peek().appendChild(e);
         elements.push(e);
     }
@@ -293,34 +298,38 @@ public class XmlVisitor extends AbstractVisitor {
 
     // Other methods
 
+    private String typeAttributeForType(final Type type) {
+        if (type == Type.BOOL)
+            return "bool";
+        if (type == Type.STRING)
+            return "string";
+        return null;
+    }
+
     private void appendText(final Element parent, final String node,
-            final Object value, final String type) {
+            final Object value, final Type type) {
         Element e = document.createElement(node);
         parent.appendChild(e);
-        if (type != null)
-            e.setAttribute("type", type);
+        String typeAttribute = typeAttributeForType(type);
+        if (typeAttribute != null)
+            e.setAttribute("type", typeAttribute);
         e.appendChild(document.createTextNode(value.toString()));
     }
 
     private void appendText(final Element parent, final String node, final Object value) {
-        appendText(parent, node, value, null);
+        appendText(parent, node, value, Type.NULL);
     }
 
     private void appendTerminal(final Element parent, final Terminal terminal) {
-        switch (terminal.getType()) {
-        case PROPERTY:
-            appendText(parent, "property", terminal.getValue());
-            break;
-        case BOOLEAN:
-            appendText(parent, "value", terminal.getValue(), "bool");
-            break;
-        case STRING:
-            appendText(parent, "value", terminal.getValue(), "string");
-            break;
-        default:
+        if (terminal.getValue() instanceof Symbol) {
+            Symbol symbol = (Symbol)terminal.getValue();
+            appendText(parent, "property", symbol.getExpansion());
+        } else if (terminal.getValue() instanceof String)
+            appendText(parent, "value", terminal.getValue(), Type.STRING);
+        else if (terminal.getValue() instanceof Boolean)
+            appendText(parent, "value", terminal.getValue(), Type.BOOL);
+        else
             appendText(parent, "value", terminal.getValue());
-            break;
-        }
     }
 
     private String filename(final Checklist checklist) {

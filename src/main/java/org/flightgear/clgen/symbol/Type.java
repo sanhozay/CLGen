@@ -23,9 +23,9 @@ package org.flightgear.clgen.symbol;
  */
 public enum Type {
 
-    NULL, INTEGER, DOUBLE, BOOL, STRING;
+    NULL, INT, DOUBLE, BOOL, STRING;
 
     public boolean isNumeric() {
-        return this == INTEGER || this == DOUBLE;
+        return this == INT || this == DOUBLE;
     }
 }

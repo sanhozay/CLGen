@@ -17,6 +17,7 @@
 package org.flightgear.clgen.ast.bindings;
 
 import org.flightgear.clgen.ast.Visitor;
+import org.flightgear.clgen.symbol.Symbol;
 
 /**
  * Property binding (property-assign).
@@ -25,20 +26,20 @@ import org.flightgear.clgen.ast.Visitor;
  */
 public class PropertyBinding extends AbstractBinding {
 
-    private final String property;
-    private final String value;
+    private final Symbol lval;
+    private final Symbol rval;
 
-    public PropertyBinding(final String property, final String value) {
-        this.property = property;
-        this.value = value;
+    public PropertyBinding(final Symbol lval, final Symbol rval) {
+        this.lval = lval;
+        this.rval = rval;
     }
 
-    public String getProperty() {
-        return property;
+    public Symbol getLval() {
+        return lval;
     }
 
-    public String getValue() {
-        return value;
+    public Symbol getRval() {
+        return rval;
     }
 
     @Override
@@ -51,7 +52,7 @@ public class PropertyBinding extends AbstractBinding {
 
     @Override
     public String toString() {
-        return String.format("Binding: %s %s",  property, value);
+        return String.format("Binding: %s %s",  lval, rval);
     }
 
 }

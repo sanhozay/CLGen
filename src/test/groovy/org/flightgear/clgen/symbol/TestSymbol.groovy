@@ -11,8 +11,8 @@ class TestSymbol extends Specification {
 
     def "Check that a new symbol can be converted to a numeric type"() {
         given:  def symbol = new Symbol("id", "expansion");
-        and:    symbol.type = Type.INTEGER
-        expect: symbol.type == Type.INTEGER
+        and:    symbol.type = Type.INT
+        expect: symbol.type == Type.INT
     }
 
     def "Check that a new symbol can be converted to a boolean type"() {
@@ -29,7 +29,7 @@ class TestSymbol extends Specification {
 
     def "Check that an integer symbol can be converted to a double"() {
         given:  def symbol = new Symbol("id", "expansion");
-        and:    symbol.type = Type.INTEGER
+        and:    symbol.type = Type.INT
         and:    symbol.type = Type.DOUBLE
         expect: symbol.type == Type.DOUBLE
     }
@@ -37,8 +37,8 @@ class TestSymbol extends Specification {
     def "Check that a double symbol can be converted to an integer"() {
         given:  def symbol = new Symbol("id", "expansion");
         and:    symbol.type = Type.DOUBLE
-        and:    symbol.type = Type.INTEGER
-        expect: symbol.type == Type.INTEGER
+        and:    symbol.type = Type.INT
+        expect: symbol.type == Type.INT
     }
 
     def "Check that a string symbol can be converted to another string"() {
@@ -57,14 +57,14 @@ class TestSymbol extends Specification {
 
     def "Check that a numeric symbol cannot be converted to boolean"() {
         given:  def symbol = new Symbol("id", "expansion");
-        and:    symbol.type = Type.INTEGER
+        and:    symbol.type = Type.INT
         when:   symbol.type = Type.BOOL
         then:   thrown(TypeException)
     }
 
     def "Check that a numeric symbol cannot be converted to string"() {
         given:  def symbol = new Symbol("id", "expansion");
-        and:    symbol.type = Type.INTEGER
+        and:    symbol.type = Type.INT
         when:   symbol.type = Type.STRING
         then:   thrown(TypeException)
     }
@@ -72,14 +72,14 @@ class TestSymbol extends Specification {
     def "Check that a string symbol cannot be converted to numeric"() {
         given:  def symbol = new Symbol("id", "expansion");
         and:    symbol.type = Type.STRING
-        when:   symbol.type = Type.INTEGER
+        when:   symbol.type = Type.INT
         then:   thrown(TypeException)
     }
 
     def "Check that a boolean symbol cannot be converted to numeric"() {
         given:  def symbol = new Symbol("id", "expansion");
         and:    symbol.type = Type.BOOL
-        when:   symbol.type = Type.INTEGER
+        when:   symbol.type = Type.INT
         then:   thrown(TypeException)
     }
 

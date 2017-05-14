@@ -7,7 +7,6 @@ import org.flightgear.clgen.ast.conditions.BinaryCondition
 import org.flightgear.clgen.ast.conditions.Condition
 import org.flightgear.clgen.ast.conditions.Operator
 import org.flightgear.clgen.ast.conditions.Terminal
-import org.flightgear.clgen.ast.conditions.TerminalType
 import org.flightgear.clgen.ast.conditions.UnaryCondition
 
 import spock.lang.Specification;
@@ -109,7 +108,7 @@ class TestVisitable extends Specification {
     }
 
     def "Check that a property binding accepts its visitor"() {
-        given:  def binding = new PropertyBinding('some/property', 'some/other')
+        given:  def binding = new PropertyBinding(null, null)
         and:    def condition = Mock(Condition);
         and:    binding.condition = condition
         when:   binding.accept(visitor)
@@ -122,7 +121,7 @@ class TestVisitable extends Specification {
         given:  def state = new State('name')
         and:    def condition = Mock(Condition)
         and:    state.condition = condition
-        and:    def binding = Mock(ValueBinding, constructorArgs: ['some/property', null])
+        and:    def binding = Mock(ValueBinding, constructorArgs: [null, null])
         and:    state.addBinding(binding)
         when:   state.accept(visitor)
         then:   1 * visitor.enter(state)
@@ -132,7 +131,7 @@ class TestVisitable extends Specification {
     }
 
     def "Check that a terminal accepts its visitor"() {
-        given:  def terminal = new Terminal(TerminalType.DOUBLE, null)
+        given:  def terminal = new Terminal(null)
         and:    def condition = Mock(Condition);
         when:   terminal.accept(visitor)
         then:   1 * visitor.enter(terminal)
@@ -150,7 +149,7 @@ class TestVisitable extends Specification {
     }
 
     def "Check that a value binding accepts its visitor"() {
-        given:  def binding = new ValueBinding("some/property", 0.0)
+        given:  def binding = new ValueBinding(null, 0.0)
         and:    def condition = Mock(Condition);
         and:    binding.condition = condition
         when:   binding.accept(visitor)
