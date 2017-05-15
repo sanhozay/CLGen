@@ -128,7 +128,7 @@ public class ChecklistListener extends CLGenBaseListener {
         return ast;
     }
 
-    public int getNumberOfSemanticErrors() {
+    public int getNumberOfErrors() {
         return errors;
     }
 

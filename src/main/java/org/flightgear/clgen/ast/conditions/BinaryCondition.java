@@ -17,6 +17,9 @@
 package org.flightgear.clgen.ast.conditions;
 
 import org.flightgear.clgen.ast.Visitor;
+import org.flightgear.clgen.symbol.Symbol;
+import org.flightgear.clgen.symbol.Type;
+import org.flightgear.clgen.symbol.TypeException;
 
 /**
  * Binary condition.
@@ -44,6 +47,26 @@ public class BinaryCondition extends AbstractCondition {
         else {
             assert rhs == null;
             rhs = child;
+        }
+    }
+
+    @Override
+    public Type getType() {
+        if (lhs.getType() == Type.NULL && rhs.getType() == Type.NULL)
+            return Type.NULL;
+        if (rhs.getType() != Type.NULL)
+            return rhs.getType();
+        return lhs.getType();
+    }
+
+    public void resolveTypes() throws TypeException {
+        if (lhs instanceof Terminal && ((Terminal)lhs).getValue() instanceof Symbol) {
+            Symbol symbol = (Symbol)((Terminal)lhs).getValue();
+            symbol.setType(getType());
+        }
+        if (rhs instanceof Terminal && ((Terminal)rhs).getValue() instanceof Symbol) {
+            Symbol symbol = (Symbol)((Terminal)rhs).getValue();
+            symbol.setType(getType());
         }
     }
 

@@ -28,4 +28,16 @@ public enum Type {
     public boolean isNumeric() {
         return this == INT || this == DOUBLE;
     }
+
+    public static Type typeOf(final Object o) {
+        if (o instanceof Symbol) {
+            Symbol symbol = (Symbol)o;
+            return symbol.getType();
+        }
+        if (o instanceof Integer) return Type.INT;
+        if (o instanceof Double) return Type.DOUBLE;
+        if (o instanceof Boolean) return Type.BOOL;
+        if (o instanceof String) return Type.STRING;
+        return Type.NULL;
+    }
 }

@@ -216,14 +216,17 @@ public class XmlVisitor extends AbstractVisitor {
 
     @Override
     public void enter(final UnaryCondition condition) {
-        Element e = document.createElement(condition.getOperator().toString());
-        elements.peek().appendChild(e);
-        elements.push(e);
+        if (condition.getOperator() != null) {
+            Element e = document.createElement(condition.getOperator().toString());
+            elements.peek().appendChild(e);
+            elements.push(e);
+        }
     }
 
     @Override
     public void exit(final UnaryCondition condition) {
-        elements.pop();
+        if (condition.getOperator() != null)
+            elements.pop();
     }
 
     @Override

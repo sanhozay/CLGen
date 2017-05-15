@@ -46,6 +46,8 @@ import org.flightgear.clgen.ast.conditions.UnaryCondition;
 import org.flightgear.clgen.symbol.DuplicateSymbolException;
 import org.flightgear.clgen.symbol.Symbol;
 import org.flightgear.clgen.symbol.SymbolTable;
+import org.flightgear.clgen.symbol.Type;
+import org.flightgear.clgen.symbol.TypeException;
 
 /**
  * Listener that builds a lookup table of items.
@@ -64,6 +66,7 @@ public class ItemListener extends CLGenBaseListener {
 
     private final SymbolTable symbolTable;
     private int errors = 0;
+    private int warnings = 0;
 
     private Item item;
     private State state;
@@ -148,7 +151,14 @@ public class ItemListener extends CLGenBaseListener {
 
     @Override
     public void exitNotCondition(final NotConditionContext ctx) {
-        conditions.pop();
+        UnaryCondition condition = (UnaryCondition)conditions.pop();
+        try {
+            condition.resolveTypes();
+        } catch (TypeException e) {
+            Token token = (Token)ctx.getChild(0).getPayload();
+            errorListeners.forEach(l -> l.semanticWarning(this, token, e.getMessage()));
+            ++warnings;
+        }
     }
 
     @Override
@@ -185,7 +195,33 @@ public class ItemListener extends CLGenBaseListener {
 
     @Override
     public void exitBinaryCondition(final BinaryConditionContext ctx) {
-        conditions.pop();
+        BinaryCondition condition = (BinaryCondition)conditions.pop();
+        try {
+            condition.resolveTypes();
+        } catch (TypeException e) {
+            Token token = (Token)ctx.getChild(1).getPayload();
+            errorListeners.forEach(l -> l.semanticWarning(this, token, e.getMessage()));
+            ++warnings;
+        }
+    }
+
+    @Override
+    public void enterUnaryCondition(final UnaryConditionContext ctx) {
+        UnaryCondition e = new UnaryCondition();
+        conditions.peek().addChild(e);
+        conditions.push(e);
+    }
+
+    @Override
+    public void exitUnaryCondition(final UnaryConditionContext ctx) {
+        UnaryCondition condition = (UnaryCondition)conditions.pop();
+        try {
+            condition.resolveTypes();
+        } catch (TypeException e) {
+            Token token = (Token)ctx.getChild(0).getChild(0).getPayload();
+            errorListeners.forEach(l -> l.semanticWarning(this, token, e.getMessage()));
+            ++warnings;
+        }
     }
 
     @Override
@@ -237,6 +273,13 @@ public class ItemListener extends CLGenBaseListener {
         ValueBinding binding = new ValueBinding(symbol, value);
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
+        try {
+            symbol.setType(Type.INT);
+        } catch (TypeException e) {
+            Token token = (Token)ctx.getChild(1).getPayload();
+            errorListeners.forEach(l -> l.semanticWarning(this, token, e.getMessage()));
+            ++warnings;
+        }
     }
 
     @Override
@@ -246,6 +289,13 @@ public class ItemListener extends CLGenBaseListener {
         ValueBinding binding = new ValueBinding(symbol, value);
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
+        try {
+            symbol.setType(Type.DOUBLE);
+        } catch (TypeException e) {
+            Token token = (Token)ctx.getChild(1).getPayload();
+            errorListeners.forEach(l -> l.semanticWarning(this, token, e.getMessage()));
+            ++warnings;
+        }
     }
 
     @Override
@@ -255,6 +305,13 @@ public class ItemListener extends CLGenBaseListener {
         ValueBinding binding = new ValueBinding(symbol, value);
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
+        try {
+            symbol.setType(Type.BOOL);
+        } catch (TypeException e) {
+            Token token = (Token)ctx.getChild(1).getPayload();
+            errorListeners.forEach(l -> l.semanticWarning(this, token, e.getMessage()));
+            ++warnings;
+        }
     }
 
     @Override
@@ -264,6 +321,13 @@ public class ItemListener extends CLGenBaseListener {
         ValueBinding binding = new ValueBinding(symbol, value);
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
+        try {
+            symbol.setType(Type.STRING);
+        } catch (TypeException e) {
+            Token token = (Token)ctx.getChild(1).getPayload();
+            errorListeners.forEach(l -> l.semanticWarning(this, token, e.getMessage()));
+            ++warnings;
+        }
     }
 
     @Override
@@ -273,6 +337,14 @@ public class ItemListener extends CLGenBaseListener {
         PropertyBinding binding = new PropertyBinding(lval, rval);
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
+        if (rval.getType() != Type.NULL)
+            try {
+                lval.setType(rval.getType());
+            } catch (TypeException e) {
+                Token token = (Token)ctx.getChild(1).getPayload();
+                errorListeners.forEach(l -> l.semanticWarning(this, token, e.getMessage()));
+                ++warnings;
+            }
     }
 
     @Override
@@ -281,6 +353,22 @@ public class ItemListener extends CLGenBaseListener {
         commandBinding = new CommandBinding(command);
         commandBinding.setCondition(bindingCondition);
         state.addBinding(commandBinding);
+    }
+
+    @Override
+    public void exitCommand(final CommandContext ctx) {
+        Object param = commandBinding.getParams().get("property");
+        Object value = commandBinding.getParams().get("value");
+        if (param != null && value != null) {
+            Symbol symbol = (Symbol)param;
+            try {
+                symbol.setType(Type.typeOf(value));
+            } catch (TypeException e) {
+                Token token = (Token)ctx.getChild(0).getPayload();
+                errorListeners.forEach(l -> l.semanticWarning(this, token, e.getMessage()));
+                ++warnings;
+            }
+        }
     }
 
     @Override
@@ -334,8 +422,12 @@ public class ItemListener extends CLGenBaseListener {
         return items;
     }
 
-    public int getNumberOfSemanticErrors() {
+    public int getNumberOfErrors() {
         return errors;
+    }
+
+    public int getNumberOfWarnings() {
+        return warnings;
     }
 
     // Other methods

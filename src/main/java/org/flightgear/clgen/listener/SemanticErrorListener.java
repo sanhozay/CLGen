@@ -39,4 +39,10 @@ public abstract class SemanticErrorListener {
         final String msg
     );
 
+    public abstract void semanticWarning(
+        final ParseTreeListener listener,
+        final Token token,
+        final String msg
+    );
+
 }

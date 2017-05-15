@@ -17,6 +17,9 @@
 package org.flightgear.clgen.ast.conditions;
 
 import org.flightgear.clgen.ast.Visitor;
+import org.flightgear.clgen.symbol.Symbol;
+import org.flightgear.clgen.symbol.Type;
+import org.flightgear.clgen.symbol.TypeException;
 
 /**
  * Unary condition.
@@ -28,6 +31,10 @@ public class UnaryCondition extends AbstractCondition {
     private final Operator operator;
     private AbstractCondition operand;
 
+    public UnaryCondition() {
+        operator = null;
+    }
+
     public UnaryCondition(final Operator operator) {
         this.operator = operator;
     }
@@ -38,6 +45,18 @@ public class UnaryCondition extends AbstractCondition {
 
     public AbstractCondition getOperand() {
         return operand;
+    }
+
+    @Override
+    public Type getType() {
+        return Type.BOOL;
+    }
+
+    public void resolveTypes() throws TypeException {
+        if (operand instanceof Terminal && ((Terminal)operand).getValue() instanceof Symbol) {
+            Symbol symbol = (Symbol)((Terminal)operand).getValue();
+            symbol.setType(getType());
+        }
     }
 
     @Override

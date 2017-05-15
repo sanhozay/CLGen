@@ -114,7 +114,7 @@ public class CLGen {
             );
         else {
             Map<String, Item> items = buildItems(context);
-            symbolTable.dump();
+            //symbolTable.dump();
             AbstractSyntaxTree ast = buildAST(items, context);
             if (errors != 0) {
                 System.err.format(
@@ -159,7 +159,8 @@ public class CLGen {
         ItemListener itemListener = new ItemListener(symbolTable);
         itemListener.addErrorListener(new WalkErrorListener(tokenStream));
         walker.walk(itemListener, context);
-        errors += itemListener.getNumberOfSemanticErrors();
+        errors += itemListener.getNumberOfErrors();
+        warnings += itemListener.getNumberOfWarnings();
         return itemListener.getItems();
     }
 
@@ -172,7 +173,7 @@ public class CLGen {
         ChecklistListener checklistListener = new ChecklistListener(items);
         checklistListener.addErrorListener(new WalkErrorListener(tokenStream));
         walker.walk(checklistListener, context);
-        errors += checklistListener.getNumberOfSemanticErrors();
+        errors += checklistListener.getNumberOfErrors();
         return checklistListener.getAST();
     }
 

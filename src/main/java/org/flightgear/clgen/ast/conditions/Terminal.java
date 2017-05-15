@@ -17,6 +17,7 @@
 package org.flightgear.clgen.ast.conditions;
 
 import org.flightgear.clgen.ast.Visitor;
+import org.flightgear.clgen.symbol.Type;
 
 /**
  * Terminal.
@@ -33,6 +34,11 @@ public class Terminal extends AbstractCondition {
 
     public Object getValue() {
         return value;
+    }
+
+    @Override
+    public Type getType() {
+        return Type.typeOf(value);
     }
 
     @Override

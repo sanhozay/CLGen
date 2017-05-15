@@ -42,4 +42,13 @@ public class WalkErrorListener extends SemanticErrorListener {
         ));
     }
 
+    @Override
+    public void semanticWarning(final ParseTreeListener listener,
+            final Token token, final String msg) {
+        System.err.format("warning at line %d: %s\n", token.getLine(), msg);
+        System.err.println(errorContext(token.getLine(),
+            token.getCharPositionInLine(), tokenStream
+        ));
+    }
+
 }

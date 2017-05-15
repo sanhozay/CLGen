@@ -73,8 +73,8 @@ public class Symbol {
             return;
         }
         String message = String.format(
-            "Cannot convert symbol '%s' from %s to %s",
-            id, this.type, type
+            "Alias '%s' used as %s, previously used as %s",
+            id, type, this.type
         );
         throw new TypeException(message);
     }
