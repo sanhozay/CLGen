@@ -16,15 +16,10 @@
  */
 package org.flightgear.clgen.listener;
 
-import static org.flightgear.clgen.listener.ListenerSupport.unquote;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.antlr.v4.runtime.Token;
 
-import org.flightgear.clgen.CLGenBaseListener;
 import org.flightgear.clgen.CLGenParser;
 import org.flightgear.clgen.ast.AbstractSyntaxTree;
 import org.flightgear.clgen.ast.Check;
@@ -42,13 +37,11 @@ import org.flightgear.clgen.ast.State;
  *
  * @author Richard Senior
  */
-public class ChecklistListener extends CLGenBaseListener {
+public class ChecklistListener extends AbstractListener {
 
     private final AbstractSyntaxTree ast = new AbstractSyntaxTree();
-    private final Map<String, Item> items;
-    private final List<SemanticErrorListener> errorListeners = new ArrayList<>();
-    private int errors = 0;
 
+    private final Map<String, Item> items;
     private Checklist checklist;
     private Page page;
 
@@ -84,21 +77,13 @@ public class ChecklistListener extends CLGenBaseListener {
         Item item = items.get(n);
         if (item == null) {
             Token token = (Token)ctx.getChild(2).getPayload();
-            String message = String.format(
-                "Undefined item '%s' in checklist '%s'", n, checklist.getTitle()
-            );
-            errorListeners.forEach(l -> l.semanticError(this, token, message));
-            ++errors;
+            error(token, "Undefined item '%s' in checklist '%s'", n, checklist.getTitle());
             return;
         }
         State state = item.getStates().get(s);
         if (state == null) {
             Token token = (Token)ctx.getChild(4).getPayload();
-            String message = String.format(
-                "State '%s' is not defined for item '%s'", s, n
-            );
-            errorListeners.forEach(l -> l.semanticError(this, token, message));
-            ++errors;
+            error(token, "State '%s' is not defined for item '%s'", s, n);
             return;
         }
         Check check = new Check(item, state);
@@ -112,12 +97,9 @@ public class ChecklistListener extends CLGenBaseListener {
     public void exitChecklist(final CLGenParser.ChecklistContext ctx) {
         if (ast.getChecklists().contains(checklist)) {
             Token token = (Token)ctx.getChild(0).getPayload();
-            String message = String.format(
-                "Duplicate definition of checklist with title '%s' (ignoring case)",
+            error(token, "Duplicate definition of checklist with title '%s' (ignoring case)",
                 checklist.getTitle()
             );
-            errorListeners.forEach(l -> l.semanticError(this, token, message));
-            ++errors;
         }
         ast.addChecklist(checklist);
     }
@@ -126,20 +108,6 @@ public class ChecklistListener extends CLGenBaseListener {
 
     public AbstractSyntaxTree getAST() {
         return ast;
-    }
-
-    public int getNumberOfErrors() {
-        return errors;
-    }
-
-    // Other methods
-
-    public void addErrorListener(final SemanticErrorListener el) {
-        errorListeners.add(el);
-    }
-
-    public void removeErrorListeners() {
-        errorListeners.clear();
     }
 
 }

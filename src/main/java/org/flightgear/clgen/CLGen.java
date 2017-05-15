@@ -31,10 +31,8 @@ import org.flightgear.clgen.ast.Item;
 import org.flightgear.clgen.backend.UsageVisitor;
 import org.flightgear.clgen.backend.XmlVisitor;
 import org.flightgear.clgen.listener.ChecklistListener;
+import org.flightgear.clgen.listener.ErrorListener;
 import org.flightgear.clgen.listener.ItemListener;
-import org.flightgear.clgen.listener.ParseErrorListener;
-import org.flightgear.clgen.listener.WalkErrorListener;
-import org.flightgear.clgen.symbol.SymbolTable;
 
 /**
  * CLGen main class.
@@ -43,9 +41,8 @@ import org.flightgear.clgen.symbol.SymbolTable;
  */
 public class CLGen {
 
-    private CommonTokenStream tokenStream;
+    private ErrorListener errorListener;
     private final ParseTreeWalker walker = new ParseTreeWalker();
-    private final SymbolTable symbolTable = new SymbolTable();
 
     private final Path input;
     private int errors = 0;
@@ -106,7 +103,10 @@ public class CLGen {
      * and then generate the output.
      */
     private void run() throws IOException, GeneratorException {
-        SpecificationContext context = parse();
+        CLGenLexer lexer = new CLGenLexer(CharStreams.fromPath(input));
+        CommonTokenStream tokenStream = new CommonTokenStream(lexer);
+        errorListener = new ErrorListener(tokenStream);
+        SpecificationContext context = parse(tokenStream);
         if (errors != 0)
             System.err.format(
                 "Generation failed with %d error%s.\n",
@@ -116,7 +116,7 @@ public class CLGen {
             Map<String, Item> items = buildItems(context);
             //symbolTable.dump();
             AbstractSyntaxTree ast = buildAST(items, context);
-            if (errors != 0) {
+            if (errors > 0) {
                 System.err.format(
                     "Generation failed with %d error%s.\n",
                     errors, errors != 1 ? "s" : ""
@@ -141,12 +141,10 @@ public class CLGen {
     /*
      * Parses the input, producing a parse tree as output.
      */
-    private SpecificationContext parse() throws IOException {
-        CLGenLexer lexer = new CLGenLexer(CharStreams.fromPath(input));
-        tokenStream = new CommonTokenStream(lexer);
+    private SpecificationContext parse(final CommonTokenStream tokenStream) throws IOException {
         CLGenParser parser = new CLGenParser(tokenStream);
         parser.removeErrorListeners();
-        parser.addErrorListener(new ParseErrorListener());
+        parser.addErrorListener(errorListener);
         SpecificationContext context = parser.specification();
         errors += parser.getNumberOfSyntaxErrors();
         return context;
@@ -156,8 +154,8 @@ public class CLGen {
      * Scans the parse tree, building a lookup table of checklist items.
      */
     private Map<String, Item> buildItems(final SpecificationContext context) {
-        ItemListener itemListener = new ItemListener(symbolTable);
-        itemListener.addErrorListener(new WalkErrorListener(tokenStream));
+        ItemListener itemListener = new ItemListener();
+        itemListener.addErrorListener(errorListener);
         walker.walk(itemListener, context);
         errors += itemListener.getNumberOfErrors();
         warnings += itemListener.getNumberOfWarnings();
@@ -171,9 +169,10 @@ public class CLGen {
     private AbstractSyntaxTree buildAST(final Map<String, Item> items,
             final SpecificationContext context) {
         ChecklistListener checklistListener = new ChecklistListener(items);
-        checklistListener.addErrorListener(new WalkErrorListener(tokenStream));
+        checklistListener.addErrorListener(errorListener);
         walker.walk(checklistListener, context);
         errors += checklistListener.getNumberOfErrors();
+        warnings += checklistListener.getNumberOfWarnings();
         return checklistListener.getAST();
     }
 

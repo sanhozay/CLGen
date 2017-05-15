@@ -16,15 +16,50 @@
  */
 package org.flightgear.clgen.listener;
 
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.antlr.v4.runtime.Token;
+
+import org.flightgear.clgen.CLGenBaseListener;
 
 /**
- * Listener support functions.
+ * Abstract listener.
  *
  * @author Richard Senior
  */
-class ListenerSupport {
+public abstract class AbstractListener extends CLGenBaseListener {
+
+    protected final List<SemanticErrorListener> errorListeners = new ArrayList<>();
+    private int errors = 0, warnings = 0;
+
+    public int getNumberOfErrors() {
+        return errors;
+    }
+
+    public int getNumberOfWarnings() {
+        return warnings;
+    }
+
+    public void addErrorListener(final SemanticErrorListener el) {
+        errorListeners.add(el);
+    }
+
+    public void removeErrorListeners() {
+        errorListeners.clear();
+    }
+
+    protected void error(final Token token, final String format, final Object ... args) {
+        String message = String.format(format, args);
+        errorListeners.forEach(l -> l.semanticError(this, token, message));
+        ++errors;
+    }
+
+    protected void warning(final Token token, final String format, final Object ... args) {
+        String message = String.format(format, args);
+        errorListeners.forEach(l -> l.semanticWarning(this, token, message));
+        ++warnings;
+    }
 
     /**
      * Unquotes a double-quoted string.
@@ -32,7 +67,7 @@ class ListenerSupport {
      * @param q the quoted string
      * @return the string with double-quotes removed
      */
-     static String unquote(final String q) {
+     protected String unquote(final String q) {
         if (q.charAt(0) != '"' || q.charAt(q.length() - 1) != '"') {
             String message = String.format("String '%s' is not quoted", q);
             throw new IllegalArgumentException(message);
@@ -44,27 +79,5 @@ class ListenerSupport {
             .replace("\\\"", "\"")
             .replace("\\\\", "\\");
     }
-
-     /**
-      * Creates a string that shows the context of a syntax or semantic error.
-      *
-      * @param line the line number where the error occurred
-      * @param charPositionInLine the position of the error within the line
-      * @param tokenStream the token stream that produced the error
-      * @return a string showing the context of the error
-      */
-     static String errorContext(final int line, final int charPositionInLine,
-             final CommonTokenStream tokenStream) {
-         StringBuilder sb = new StringBuilder();
-         CharStream stream = tokenStream.getTokenSource().getInputStream();
-         String[] lines = stream.toString().split("\n");
-         if (line - 1 < lines.length) {
-             sb.append(lines[line - 1] + "\n");
-             for (int i = 0; i < charPositionInLine; ++i)
-                 sb.append(' ');
-             sb.append("^");
-         }
-         return sb.toString();
-     }
 
 }

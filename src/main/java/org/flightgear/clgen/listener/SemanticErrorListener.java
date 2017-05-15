@@ -16,33 +16,17 @@
  */
 package org.flightgear.clgen.listener;
 
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
- * Abstract listener error listener.
+ * Semantic error listener interface.
  *
  * @author Richard Senior
  */
-public abstract class SemanticErrorListener {
+public interface SemanticErrorListener {
 
-    protected final CommonTokenStream tokenStream;
-
-    public SemanticErrorListener(final CommonTokenStream tokenStream) {
-        this.tokenStream = tokenStream;
-    }
-
-    public abstract void semanticError(
-        final ParseTreeListener listener,
-        final Token token,
-        final String msg
-    );
-
-    public abstract void semanticWarning(
-        final ParseTreeListener listener,
-        final Token token,
-        final String msg
-    );
+    void semanticError(final ParseTreeListener listener, final Token token, final String msg);
+    void semanticWarning(final ParseTreeListener listener, final Token token, final String msg);
 
 }
