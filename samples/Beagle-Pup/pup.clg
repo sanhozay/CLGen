@@ -10,11 +10,11 @@ author("Richard Senior");
 
 item("Alternator") {
     alternatorSwitch = "controls/electric/engine/generator";
-    state("OFF", alternatorSwitch == 0) {
-        fgcommand("switch-assign", property=alternatorSwitch, value=0);
+    state("OFF", !alternatorSwitch) {
+        fgcommand("switch-assign", property=alternatorSwitch, value=false);
     }
-    state("ON", alternatorSwitch == 1) {
-        fgcommand("switch-assign", property=alternatorSwitch, value=1);
+    state("ON", alternatorSwitch) {
+        fgcommand("switch-assign", property=alternatorSwitch, value=true);
     }
 }
 
@@ -36,7 +36,7 @@ item("Autopilot") {
     switch = "autopilot/sperry/main-switch";
     variant = "sim/aero";
     state("CHECK", !active && pitch > 0 && turn == 0) {
-        fgcommand("switch-assign", property=switch, value=0);
+        fgcommand("switch-assign", property=switch, value=false);
         fgcommand("property-interpolate", property=turn, value=0, rate=20);
         if (variant == "pup100")
             fgcommand("property-interpolate", property=pitch, value=5, rate=2);
@@ -50,13 +50,13 @@ item("Beacon") {
     breaker = "controls/switches/circuit-breakers/beacon";
     beaconChecked = "sim/checklists/status/beacon";
     state("OFF", volts == 0 && beaconChecked) {
-        fgcommand("switch-assign", property=breaker, value=0);
+        fgcommand("switch-assign", property=breaker, value=false);
     }
     state("ON", volts > 0) {
-        fgcommand("switch-assign", property=breaker, value=1);
+        fgcommand("switch-assign", property=breaker, value=true);
     }
     state("CHECK", volts > 0 || beaconChecked) {
-        fgcommand("switch-assign", property=breaker, value=1);
+        fgcommand("switch-assign", property=breaker, value=true);
     }
 }
 
@@ -64,10 +64,10 @@ item("Boost Pump") {
     volts = "systems/electrical/outputs/fuel-pump";
     boostPumpSwitch = "controls/electric/engine/fuel-pump";
     state("OFF", volts == 0) {
-        fgcommand("switch-assign", property=boostPumpSwitch, value=0);
+        fgcommand("switch-assign", property=boostPumpSwitch, value=false);
     }
     state("ON", volts > 0) {
-        fgcommand("switch-assign", property=boostPumpSwitch, value=1);
+        fgcommand("switch-assign", property=boostPumpSwitch, value=true);
     }
 }
 
@@ -167,15 +167,15 @@ item("Main Battery") {
     volts = "systems/electrical/outputs/bus-dc";
     batterySwitch = "controls/electric/battery-switch";
     state("OFF", volts == 0) {
-        fgcommand("switch-assign", property=batterySwitch, value=0);
+        fgcommand("switch-assign", property=batterySwitch, value=false);
     }
     state("ON", volts > 0) {
-        fgcommand("switch-assign", property=batterySwitch, value=1);
+        fgcommand("switch-assign", property=batterySwitch, value=true);
     }
     navChecked = "sim/checklists/status/nav-lights";
     beaconChecked = "sim/checklists/status/beacon";
     state("CHECK", volts > 0 || navChecked && beaconChecked) {
-        fgcommand("switch-assign", property=batterySwitch, value=1);
+        fgcommand("switch-assign", property=batterySwitch, value=true);
     }
 }
 
@@ -193,11 +193,11 @@ item("Navigation Lights") {
     volts = "systems/electrical/outputs/nav-lights";
     breaker = "controls/switches/circuit-breakers/landtaxi-nav";
     state("ON", volts > 0) {
-        fgcommand("switch-assign", property=breaker, value=1);
+        fgcommand("switch-assign", property=breaker, value=true);
     }
     navChecked = "sim/checklists/status/nav-lights";
     state("CHECK", volts > 0 || navChecked) {
-        fgcommand("switch-assign", property=breaker, value=1);
+        fgcommand("switch-assign", property=breaker, value=true);
     }
 }
 
@@ -258,10 +258,10 @@ item("Starter Master") {
     volts = "systems/electrical/outputs/starter";
     starterMasterSwitch = "controls/electric/engine/starter-master";
     state("OFF", volts == 0.0) {
-        fgcommand("switch-assign", property=starterMasterSwitch, value=0);
+        fgcommand("switch-assign", property=starterMasterSwitch, value=false);
     }
     state("ON", volts > 0.0) {
-        fgcommand("switch-assign", property=starterMasterSwitch, value=1);
+        fgcommand("switch-assign", property=starterMasterSwitch, value=true);
     }
 }
 
