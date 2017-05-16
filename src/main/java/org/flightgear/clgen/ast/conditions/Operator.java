@@ -23,16 +23,7 @@ package org.flightgear.clgen.ast.conditions;
  */
 public enum Operator {
 
-    AND("and"), OR("or"), NOT("not"),
-    EQ("equals"), NE("not-equals"),
-    GT("greater-than"), LT("less-than"),
-    GE("greater-than-equals"), LE("less-than-equals");
-
-    private String tag;
-
-    private Operator(final String tag) {
-        this.tag = tag;
-    }
+    AND, OR, NOT, EQ, NE, GT, LT, GE, LE;
 
     public static Operator fromString(final String s) {
         switch(s) {
@@ -47,11 +38,6 @@ public enum Operator {
         case "<=": return LE;
         }
         return null;
-    }
-
-    @Override
-    public String toString() {
-        return tag;
     }
 
 }

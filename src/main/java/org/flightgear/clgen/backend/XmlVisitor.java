@@ -46,6 +46,7 @@ import org.flightgear.clgen.ast.bindings.PropertyBinding;
 import org.flightgear.clgen.ast.bindings.ValueBinding;
 import org.flightgear.clgen.ast.conditions.BinaryCondition;
 import org.flightgear.clgen.ast.conditions.Condition;
+import org.flightgear.clgen.ast.conditions.Operator;
 import org.flightgear.clgen.ast.conditions.Terminal;
 import org.flightgear.clgen.ast.conditions.UnaryCondition;
 import org.flightgear.clgen.symbol.Symbol;
@@ -204,7 +205,7 @@ public class XmlVisitor extends AbstractVisitor {
 
     @Override
     public void enter(final BinaryCondition condition) {
-        Element e = document.createElement(condition.getOperator().toString());
+        Element e = document.createElement(operatorTag(condition.getOperator()));
         elements.peek().appendChild(e);
         elements.push(e);
     }
@@ -217,7 +218,7 @@ public class XmlVisitor extends AbstractVisitor {
     @Override
     public void enter(final UnaryCondition condition) {
         if (condition.getOperator() != null) {
-            Element e = document.createElement(condition.getOperator().toString());
+            Element e = document.createElement(operatorTag(condition.getOperator()));
             elements.peek().appendChild(e);
             elements.push(e);
         }
@@ -301,28 +302,6 @@ public class XmlVisitor extends AbstractVisitor {
 
     // Other methods
 
-    private String typeAttributeForType(final Type type) {
-        if (type == Type.BOOL)
-            return "bool";
-        if (type == Type.STRING)
-            return "string";
-        return null;
-    }
-
-    private void appendText(final Element parent, final String node,
-            final Object value, final Type type) {
-        Element e = document.createElement(node);
-        parent.appendChild(e);
-        String typeAttribute = typeAttributeForType(type);
-        if (typeAttribute != null)
-            e.setAttribute("type", typeAttribute);
-        e.appendChild(document.createTextNode(value.toString()));
-    }
-
-    private void appendText(final Element parent, final String node, final Object value) {
-        appendText(parent, node, value, Type.NULL);
-    }
-
     private void appendTerminal(final Element parent, final Terminal terminal) {
         if (terminal.getValue() instanceof Symbol) {
             Symbol symbol = (Symbol)terminal.getValue();
@@ -335,11 +314,49 @@ public class XmlVisitor extends AbstractVisitor {
             appendText(parent, "value", terminal.getValue());
     }
 
+    private void appendText(final Element parent, final String node,
+        final Object value, final Type type) {
+        Element e = document.createElement(node);
+        parent.appendChild(e);
+        String typeAttribute = typeAttributeForType(type);
+        if (typeAttribute != null)
+            e.setAttribute("type", typeAttribute);
+        e.appendChild(document.createTextNode(value.toString()));
+    }
+
+    private void appendText(final Element parent, final String node, final Object value) {
+        appendText(parent, node, value, Type.NULL);
+    }
+
     private String filename(final Checklist checklist) {
         String s = checklist.getTitle()
             .toLowerCase()
             .replaceAll(" ", "-");
         return s + ".xml";
+    }
+
+    private String operatorTag(final Operator op) {
+        switch (op) {
+        case AND: return "and";
+        case OR: return "or";
+        case NOT: return "not";
+        case EQ: return "equals";
+        case NE: return "not-equals";
+        case GT: return "greater-than";
+        case LT: return "less-than";
+        case GE: return "greater-than-equals";
+        case LE: return "less-than-equals";
+        }
+        assert false;
+        return null;
+    }
+
+    private String typeAttributeForType(final Type type) {
+        if (type == Type.BOOL)
+            return "bool";
+        if (type == Type.STRING)
+            return "string";
+        return null;
     }
 
     private void write(final Document document, final String filename,
