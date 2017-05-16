@@ -90,9 +90,8 @@ public class Check implements Visitable {
     @Override
     public void accept(final Visitor visitor) {
         visitor.enter(this);
+        item.accept(visitor);
         state.accept(visitor);
-        if (item.getMarker() != null)
-            item.getMarker().accept(visitor);
         visitor.exit(this);
     }
 

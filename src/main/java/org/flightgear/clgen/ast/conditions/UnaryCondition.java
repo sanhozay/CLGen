@@ -17,19 +17,25 @@
 package org.flightgear.clgen.ast.conditions;
 
 import org.flightgear.clgen.ast.Visitor;
+import org.flightgear.clgen.symbol.Symbol;
+import org.flightgear.clgen.symbol.Type;
+import org.flightgear.clgen.symbol.TypeException;
 
 /**
- * Binary expression.
+ * Unary condition.
  *
  * @author Richard Senior
  */
-public class BinaryExpression extends AbstractCondition {
+public class UnaryCondition extends AbstractCondition {
 
     private final Operator operator;
-    private AbstractCondition lhs = null;
-    private AbstractCondition rhs = null;
+    private AbstractCondition operand;
 
-    public BinaryExpression(final Operator operator) {
+    public UnaryCondition() {
+        operator = null;
+    }
+
+    public UnaryCondition(final Operator operator) {
         this.operator = operator;
     }
 
@@ -37,27 +43,37 @@ public class BinaryExpression extends AbstractCondition {
         return operator;
     }
 
+    public AbstractCondition getOperand() {
+        return operand;
+    }
+
+    @Override
+    public Type getType() {
+        return Type.BOOL;
+    }
+
+    public void resolveTypes() throws TypeException {
+        if (operand instanceof Terminal && ((Terminal)operand).getValue() instanceof Symbol) {
+            Symbol symbol = (Symbol)((Terminal)operand).getValue();
+            symbol.setType(getType());
+        }
+    }
+
     @Override
     public void addChild(final AbstractCondition child) {
-        if (lhs == null)
-            lhs = child;
-        else {
-            assert rhs == null;
-            rhs = child;
-        }
+        operand = child;
     }
 
     @Override
     public void accept(final Visitor visitor) {
         visitor.enter(this);
-        lhs.accept(visitor);
-        rhs.accept(visitor);
+        operand.accept(visitor);
         visitor.exit(this);
     }
 
     @Override
     public String toString() {
-        return String.format("BinaryExpression: %s %s %s", lhs, operator, rhs);
+        return String.format("UnaryCondition: %s %s", operator, operand);
     }
 
 }

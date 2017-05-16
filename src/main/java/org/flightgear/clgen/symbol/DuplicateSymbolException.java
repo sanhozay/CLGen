@@ -14,30 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.flightgear.clgen.ast.conditions;
+package org.flightgear.clgen.symbol;
 
 /**
- * Operator.
+ * Duplicate symbol exception.
  *
  * @author Richard Senior
  */
-public enum Operator {
+@SuppressWarnings("serial")
+public class DuplicateSymbolException extends Exception {
 
-    AND, OR, NOT, EQ, NE, GT, LT, GE, LE;
-
-    public static Operator fromString(final String s) {
-        switch(s) {
-        case "&&": return AND;
-        case "||": return OR;
-        case "!":  return NOT;
-        case "==": return EQ;
-        case "!=": return NE;
-        case ">" : return GT;
-        case "<" : return LT;
-        case ">=": return GE;
-        case "<=": return LE;
-        }
-        return null;
+    public DuplicateSymbolException(final String message) {
+        super(message);
     }
 
 }

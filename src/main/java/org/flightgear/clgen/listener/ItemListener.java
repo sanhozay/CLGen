@@ -16,19 +16,13 @@
  */
 package org.flightgear.clgen.listener;
 
-import static org.flightgear.clgen.listener.ListenerSupport.unquote;
-
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.tree.ParseTree;
 
-import org.flightgear.clgen.CLGenBaseListener;
 import org.flightgear.clgen.CLGenParser;
 import org.flightgear.clgen.CLGenParser.*;
 import org.flightgear.clgen.ast.Coordinate;
@@ -39,12 +33,16 @@ import org.flightgear.clgen.ast.bindings.CommandBinding;
 import org.flightgear.clgen.ast.bindings.PropertyBinding;
 import org.flightgear.clgen.ast.bindings.ValueBinding;
 import org.flightgear.clgen.ast.conditions.AbstractCondition;
-import org.flightgear.clgen.ast.conditions.BinaryExpression;
+import org.flightgear.clgen.ast.conditions.BinaryCondition;
 import org.flightgear.clgen.ast.conditions.Condition;
 import org.flightgear.clgen.ast.conditions.Operator;
 import org.flightgear.clgen.ast.conditions.Terminal;
-import org.flightgear.clgen.ast.conditions.TerminalType;
-import org.flightgear.clgen.ast.conditions.UnaryExpression;
+import org.flightgear.clgen.ast.conditions.UnaryCondition;
+import org.flightgear.clgen.symbol.DuplicateSymbolException;
+import org.flightgear.clgen.symbol.Symbol;
+import org.flightgear.clgen.symbol.SymbolTable;
+import org.flightgear.clgen.symbol.Type;
+import org.flightgear.clgen.symbol.TypeException;
 
 /**
  * Listener that builds a lookup table of items.
@@ -56,17 +54,16 @@ import org.flightgear.clgen.ast.conditions.UnaryExpression;
  *
  * @author Richard Senior
  */
-public class ItemListener extends CLGenBaseListener {
+public class ItemListener extends AbstractListener {
 
     private final Map<String, Item> items = new HashMap<>();
-    private final Map<String, String> symbols = new HashMap<>();
-    private final List<SemanticErrorListener> errorListeners = new ArrayList<>();
-    private int errors = 0;
+
+    private final SymbolTable symbolTable = new SymbolTable();
 
     private Item item;
     private State state;
-    private CommandBinding commandBinding;
     private final Deque<AbstractCondition> conditions = new ArrayDeque<>();
+    private CommandBinding commandBinding;
     private Condition bindingCondition = null;
 
     @Override
@@ -78,28 +75,23 @@ public class ItemListener extends CLGenBaseListener {
     public void exitItem(final ItemContext ctx) {
         if (items.containsKey(item.getName())) {
             Token token = (Token)ctx.getChild(0).getPayload();
-            String message = String.format("Duplicate definition of item '%s'", item.getName());
-            errorListeners.forEach(l -> l.semanticError(this, token, message));
-            ++errors;
+            error(token, "Duplicate definition of item '%s'", item.getName());
         } else
             items.put(item.getName(), item);
-        symbols.clear();
     }
 
     @Override
     public void enterDeclaration(final DeclarationContext ctx) {
         String key = ctx.getChild(0).getText();
         String value = unquote(ctx.getChild(2).getText());
-        if (symbols.get(key) != null) {
+        try {
+            symbolTable.add(item.getName(), new Symbol(key, value));
+        } catch (DuplicateSymbolException e) {
             Token token = (Token)ctx.getChild(0).getPayload();
-            String message = String.format("Alias '%s' is already defined in item '%s'",
+            error(token, "Alias '%s' is already defined in item '%s'",
                 key, item.getName()
             );
-            errorListeners.forEach(l -> l.semanticError(this, token, message));
-            ++errors;
-            return;
         }
-        symbols.put(key, value);
     }
 
     @Override
@@ -111,12 +103,9 @@ public class ItemListener extends CLGenBaseListener {
     public void exitState(final StateContext ctx) {
         if (item.getStates().containsKey(state.getName())) {
             Token token = (Token)ctx.getChild(2).getPayload();
-            String message = String.format(
-                "Duplicate definition of state '%s' in item '%s'",
+            error(token, "Duplicate definition of state '%s' in item '%s'",
                 state.getName(), item.getName()
             );
-            errorListeners.forEach(l -> l.semanticError(this, token, message));
-            ++errors;
             return;
         }
         item.addState(state);
@@ -136,19 +125,25 @@ public class ItemListener extends CLGenBaseListener {
 
     @Override
     public void enterNotCondition(final NotConditionContext ctx) {
-        UnaryExpression e = new UnaryExpression(Operator.NOT);
+        UnaryCondition e = new UnaryCondition(Operator.NOT);
         conditions.peek().addChild(e);
         conditions.push(e);
     }
 
     @Override
     public void exitNotCondition(final NotConditionContext ctx) {
-        conditions.pop();
+        UnaryCondition condition = (UnaryCondition)conditions.pop();
+        try {
+            condition.resolveTypes();
+        } catch (TypeException e) {
+            Token token = (Token)ctx.getChild(0).getPayload();
+            warning(token, e.getMessage());
+        }
     }
 
     @Override
     public void enterAndCondition(final AndConditionContext ctx) {
-        BinaryExpression e = new BinaryExpression(Operator.AND);
+        BinaryCondition e = new BinaryCondition(Operator.AND);
         conditions.peek().addChild(e);
         conditions.push(e);
     }
@@ -160,7 +155,7 @@ public class ItemListener extends CLGenBaseListener {
 
     @Override
     public void enterOrCondition(final OrConditionContext ctx) {
-        BinaryExpression e = new BinaryExpression(Operator.OR);
+        BinaryCondition e = new BinaryCondition(Operator.OR);
         conditions.peek().addChild(e);
         conditions.push(e);
     }
@@ -171,46 +166,70 @@ public class ItemListener extends CLGenBaseListener {
     }
 
     @Override
-    public void enterBinaryExpression(final BinaryExpressionContext ctx) {
+    public void enterBinaryCondition(final BinaryConditionContext ctx) {
         Operator op = Operator.fromString(ctx.getChild(1).getText());
-        BinaryExpression e = new BinaryExpression(op);
+        BinaryCondition e = new BinaryCondition(op);
         conditions.peek().addChild(e);
         conditions.push(e);
     }
 
     @Override
-    public void exitBinaryExpression(final BinaryExpressionContext ctx) {
-        conditions.pop();
+    public void exitBinaryCondition(final BinaryConditionContext ctx) {
+        BinaryCondition condition = (BinaryCondition)conditions.pop();
+        try {
+            condition.resolveTypes();
+        } catch (TypeException e) {
+            Token token = (Token)ctx.getChild(1).getPayload();
+            warning(token, e.getMessage());
+        }
+    }
+
+    @Override
+    public void enterUnaryCondition(final UnaryConditionContext ctx) {
+        UnaryCondition e = new UnaryCondition();
+        conditions.peek().addChild(e);
+        conditions.push(e);
+    }
+
+    @Override
+    public void exitUnaryCondition(final UnaryConditionContext ctx) {
+        UnaryCondition condition = (UnaryCondition)conditions.pop();
+        try {
+            condition.resolveTypes();
+        } catch (TypeException e) {
+            Token token = (Token)ctx.getChild(0).getChild(0).getPayload();
+            warning(token, e.getMessage());
+        }
     }
 
     @Override
     public void enterDoubleTerminal(final DoubleTerminalContext ctx) {
         Double d = Double.parseDouble(ctx.getText());
-        conditions.peek().addChild(new Terminal(TerminalType.DOUBLE, d));
+        conditions.peek().addChild(new Terminal(d));
     }
 
     @Override
     public void enterIntegerTerminal(final IntegerTerminalContext ctx) {
         Integer i = Integer.parseInt(ctx.getText());
-        conditions.peek().addChild(new Terminal(TerminalType.INTEGER, i));
+        conditions.peek().addChild(new Terminal(i));
     }
 
     @Override
     public void enterBooleanTerminal(final BooleanTerminalContext ctx) {
         Boolean b = Boolean.parseBoolean(ctx.getText());
-        conditions.peek().addChild(new Terminal(TerminalType.BOOLEAN, b));
+        conditions.peek().addChild(new Terminal(b));
     }
 
     @Override
     public void enterStringTerminal(final StringTerminalContext ctx) {
         String s = unquote(ctx.getText());
-        conditions.peek().addChild(new Terminal(TerminalType.STRING, s));
+        conditions.peek().addChild(new Terminal(s));
     }
 
     @Override
     public void enterIdTerminal(final IdTerminalContext ctx) {
-        String p = lookup(ctx.getChild(0));
-        conditions.peek().addChild(new Terminal(TerminalType.PROPERTY, p));
+        Symbol symbol = lookup((Token)ctx.getChild(0).getPayload());
+        conditions.peek().addChild(new Terminal(symbol));
     }
 
     @Override
@@ -227,47 +246,78 @@ public class ItemListener extends CLGenBaseListener {
 
     @Override
     public void enterAssignInt(final AssignIntContext ctx) {
-        String p = lookup(ctx.getChild(0));
-        Integer v = Integer.parseInt(ctx.getChild(2).getText());
-        ValueBinding binding = new ValueBinding(p, v);
+        Symbol symbol = lookup((Token)ctx.getChild(0).getPayload());
+        Integer value = Integer.parseInt(ctx.getChild(2).getText());
+        ValueBinding binding = new ValueBinding(symbol, value);
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
+        try {
+            symbol.setType(Type.INT);
+        } catch (TypeException e) {
+            Token token = (Token)ctx.getChild(1).getPayload();
+            warning(token, e.getMessage());
+        }
     }
 
     @Override
     public void enterAssignDouble(final AssignDoubleContext ctx) {
-        String p = lookup(ctx.getChild(0));
-        Double v = Double.parseDouble(ctx.getChild(2).getText());
-        ValueBinding binding = new ValueBinding(p, v);
+        Symbol symbol = lookup((Token)ctx.getChild(0).getPayload());
+        Double value = Double.parseDouble(ctx.getChild(2).getText());
+        ValueBinding binding = new ValueBinding(symbol, value);
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
+        try {
+            symbol.setType(Type.DOUBLE);
+        } catch (TypeException e) {
+            Token token = (Token)ctx.getChild(1).getPayload();
+            warning(token, e.getMessage());
+        }
     }
 
     @Override
     public void enterAssignBool(final CLGenParser.AssignBoolContext ctx) {
-        String p = lookup(ctx.getChild(0));
-        Boolean b = Boolean.parseBoolean(ctx.getChild(2).getText());
-        ValueBinding binding = new ValueBinding(p, b);
+        Symbol symbol = lookup((Token)ctx.getChild(0).getPayload());
+        Boolean value = Boolean.parseBoolean(ctx.getChild(2).getText());
+        ValueBinding binding = new ValueBinding(symbol, value);
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
+        try {
+            symbol.setType(Type.BOOL);
+        } catch (TypeException e) {
+            Token token = (Token)ctx.getChild(1).getPayload();
+            warning(token, e.getMessage());
+        }
     }
 
     @Override
     public void enterAssignString(final AssignStringContext ctx) {
-        String p = lookup(ctx.getChild(0));
-        String s = unquote(ctx.getChild(2).getText());
-        ValueBinding binding = new ValueBinding(p, s);
+        Symbol symbol = lookup((Token)ctx.getChild(0).getPayload());
+        String value = unquote(ctx.getChild(2).getText());
+        ValueBinding binding = new ValueBinding(symbol, value);
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
+        try {
+            symbol.setType(Type.STRING);
+        } catch (TypeException e) {
+            Token token = (Token)ctx.getChild(1).getPayload();
+            warning(token, e.getMessage());
+        }
     }
 
     @Override
     public void enterAssignId(final AssignIdContext ctx) {
-        String p = lookup(ctx.getChild(0));
-        String v = lookup(ctx.getChild(2));
-        PropertyBinding binding = new PropertyBinding(p, v);
+        Symbol lval = lookup((Token)ctx.getChild(0).getPayload());
+        Symbol rval = lookup((Token)ctx.getChild(2).getPayload());
+        PropertyBinding binding = new PropertyBinding(lval, rval);
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
+        if (rval.getType() != Type.NULL)
+            try {
+                lval.setType(rval.getType());
+            } catch (TypeException e) {
+                Token token = (Token)ctx.getChild(1).getPayload();
+                warning(token, e.getMessage());
+            }
     }
 
     @Override
@@ -276,6 +326,21 @@ public class ItemListener extends CLGenBaseListener {
         commandBinding = new CommandBinding(command);
         commandBinding.setCondition(bindingCondition);
         state.addBinding(commandBinding);
+    }
+
+    @Override
+    public void exitCommand(final CommandContext ctx) {
+        Object param = commandBinding.getParams().get("property");
+        Object value = commandBinding.getParams().get("value");
+        if (param != null && value != null) {
+            Symbol symbol = (Symbol)param;
+            try {
+                symbol.setType(Type.typeOf(value));
+            } catch (TypeException e) {
+                Token token = (Token)ctx.getChild(0).getPayload();
+                warning(token, e.getMessage());
+            }
+        }
     }
 
     @Override
@@ -309,8 +374,8 @@ public class ItemListener extends CLGenBaseListener {
     @Override
     public void enterIdParam(final IdParamContext ctx) {
         String n = ctx.getChild(0).getText();
-        String v = lookup(ctx.getChild(2));
-        commandBinding.addParam(n, v);
+        Symbol symbol = lookup((Token)ctx.getChild(2).getPayload());
+        commandBinding.addParam(n, symbol);
     }
 
     @Override
@@ -329,33 +394,17 @@ public class ItemListener extends CLGenBaseListener {
         return items;
     }
 
-    public int getNumberOfSemanticErrors() {
-        return errors;
-    }
-
     // Other methods
 
-    public void addErrorListener(final SemanticErrorListener el) {
-        errorListeners.add(el);
-    }
-
-    public void removeErrorListeners() {
-        errorListeners.clear();
-    }
-
-    private String lookup(final ParseTree parseTree) {
-        Token token = (Token)parseTree.getPayload();
-        String symbol = parseTree.getText();
-        String property = symbols.get(symbol);
-        if (property == null) {
-            String message = String.format("Alias '%s' is not defined in item '%s'",
-                symbol, item.getName()
+    private Symbol lookup(final Token token) {
+        Symbol symbol = symbolTable.lookup(item.getName(), token.getText());
+        if (symbol == null) {
+            error(token, "Alias '%s' is not defined in item '%s'",
+                token.getText(), item.getName()
             );
-            errorListeners.forEach(l -> l.semanticError(this, token, message));
-            ++errors;
-            return "not-found";
+            return null;
         }
-        return property;
+        return symbol;
     }
 
 }

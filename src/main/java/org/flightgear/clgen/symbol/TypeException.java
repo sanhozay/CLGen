@@ -14,28 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.flightgear.clgen.ast.conditions;
+package org.flightgear.clgen.symbol;
 
 /**
- * Type.
+ * Type exception.
  *
  * @author Richard Senior
  */
-public enum TerminalType {
+@SuppressWarnings("serial")
+public class TypeException extends Exception {
 
-    NULL(null),
-    PROPERTY("property"),
-    DOUBLE("value"), INTEGER("value"),
-    BOOLEAN("value"), STRING("value");
-
-    private String tag;
-
-    private TerminalType(final String tag) {
-        this.tag = tag;
+    public TypeException(final String message) {
+        super(message);
     }
 
-    @Override
-    public String toString() {
-        return tag;
-    }
 }

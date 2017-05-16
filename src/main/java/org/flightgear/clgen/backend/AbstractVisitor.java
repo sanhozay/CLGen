@@ -19,6 +19,7 @@ package org.flightgear.clgen.backend;
 import org.flightgear.clgen.ast.AbstractSyntaxTree;
 import org.flightgear.clgen.ast.Check;
 import org.flightgear.clgen.ast.Checklist;
+import org.flightgear.clgen.ast.Item;
 import org.flightgear.clgen.ast.Marker;
 import org.flightgear.clgen.ast.Page;
 import org.flightgear.clgen.ast.State;
@@ -26,10 +27,10 @@ import org.flightgear.clgen.ast.Visitor;
 import org.flightgear.clgen.ast.bindings.CommandBinding;
 import org.flightgear.clgen.ast.bindings.PropertyBinding;
 import org.flightgear.clgen.ast.bindings.ValueBinding;
-import org.flightgear.clgen.ast.conditions.BinaryExpression;
+import org.flightgear.clgen.ast.conditions.BinaryCondition;
 import org.flightgear.clgen.ast.conditions.Condition;
 import org.flightgear.clgen.ast.conditions.Terminal;
-import org.flightgear.clgen.ast.conditions.UnaryExpression;
+import org.flightgear.clgen.ast.conditions.UnaryCondition;
 
 /**
  * Abstract visitor.
@@ -53,6 +54,9 @@ public class AbstractVisitor implements Visitor {
     public void enter(final Check check) {}
 
     @Override
+    public void enter(final Item item) {}
+
+    @Override
     public void enter(final State state) {}
 
     @Override
@@ -68,10 +72,10 @@ public class AbstractVisitor implements Visitor {
     public void enter(final Condition condition) {}
 
     @Override
-    public void enter(final BinaryExpression expression) {}
+    public void enter(final BinaryCondition condition) {}
 
     @Override
-    public void enter(final UnaryExpression expression) {}
+    public void enter(final UnaryCondition condition) {}
 
     @Override
     public void enter(final Terminal terminal) {}

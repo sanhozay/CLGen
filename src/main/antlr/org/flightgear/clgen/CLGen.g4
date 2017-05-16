@@ -81,8 +81,8 @@ condition
     | condition '&&' condition                              # AndCondition
     | condition '||' condition                              # OrCondition
     | '(' condition ')'                                     # ParenCondition
-    | terminal OP terminal                                  # BinaryExpression
-    | terminal                                              # SimpleExpression
+    | terminal OP terminal                                  # BinaryCondition
+    | terminal                                              # UnaryCondition
     | condition '|' condition {
         notifyErrorListeners("Invalid operator '|', did you mean '||'?");
     } # ConditionError

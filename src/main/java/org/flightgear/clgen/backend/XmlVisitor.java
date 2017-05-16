@@ -44,10 +44,13 @@ import org.flightgear.clgen.ast.Page;
 import org.flightgear.clgen.ast.bindings.CommandBinding;
 import org.flightgear.clgen.ast.bindings.PropertyBinding;
 import org.flightgear.clgen.ast.bindings.ValueBinding;
-import org.flightgear.clgen.ast.conditions.BinaryExpression;
+import org.flightgear.clgen.ast.conditions.BinaryCondition;
 import org.flightgear.clgen.ast.conditions.Condition;
+import org.flightgear.clgen.ast.conditions.Operator;
 import org.flightgear.clgen.ast.conditions.Terminal;
-import org.flightgear.clgen.ast.conditions.UnaryExpression;
+import org.flightgear.clgen.ast.conditions.UnaryCondition;
+import org.flightgear.clgen.symbol.Symbol;
+import org.flightgear.clgen.symbol.Type;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -201,27 +204,30 @@ public class XmlVisitor extends AbstractVisitor {
     }
 
     @Override
-    public void enter(final BinaryExpression expression) {
-        Element e = document.createElement(expression.getOperator().toString());
+    public void enter(final BinaryCondition condition) {
+        Element e = document.createElement(operatorTag(condition.getOperator()));
         elements.peek().appendChild(e);
         elements.push(e);
     }
 
     @Override
-    public void exit(final BinaryExpression expression) {
+    public void exit(final BinaryCondition condition) {
         elements.pop();
     }
 
     @Override
-    public void enter(final UnaryExpression expression) {
-        Element e = document.createElement(expression.getOperator().toString());
-        elements.peek().appendChild(e);
-        elements.push(e);
+    public void enter(final UnaryCondition condition) {
+        if (condition.getOperator() != null) {
+            Element e = document.createElement(operatorTag(condition.getOperator()));
+            elements.peek().appendChild(e);
+            elements.push(e);
+        }
     }
 
     @Override
-    public void exit(final UnaryExpression expression) {
-        elements.pop();
+    public void exit(final UnaryCondition condition) {
+        if (condition.getOperator() != null)
+            elements.pop();
     }
 
     @Override
@@ -233,8 +239,8 @@ public class XmlVisitor extends AbstractVisitor {
     public void enter(final ValueBinding binding) {
         Element e = document.createElement("binding");
         appendText(e, "command", "property-assign");
-        appendText(e, "property", binding.getProperty());
-        appendText(e, "value", binding.getValue(), binding.getType());
+        appendText(e, "property", binding.getSymbol().getExpansion());
+        appendText(e, "value", binding.getValue(), binding.getSymbol().getType());
         elements.peek().appendChild(e);
         elements.push(e);
     }
@@ -250,10 +256,13 @@ public class XmlVisitor extends AbstractVisitor {
         appendText(e, "command", binding.getCommand());
         for (String name : binding.getParams().keySet()) {
             Object value = binding.getParams().get(name);
-            if (value instanceof String && !"property".equals(name))
-                appendText(e, name, value, "string");
+            if (value instanceof Symbol) {
+                Symbol symbol = (Symbol)value;
+                appendText(e, name, symbol.getExpansion());
+            } else if (value instanceof String)
+                appendText(e, name, value, Type.STRING);
             else if (value instanceof Boolean)
-                appendText(e, name, value, "bool");
+                appendText(e, name, value, Type.BOOL);
             else
                 appendText(e, name, value);
         }
@@ -270,8 +279,8 @@ public class XmlVisitor extends AbstractVisitor {
     public void enter(final PropertyBinding binding) {
         Element e = document.createElement("binding");
         appendText(e, "command", "property-assign");
-        appendText(e, "property", binding.getProperty());
-        appendText(e, "property", binding.getValue());
+        appendText(e, "property", binding.getLval());
+        appendText(e, "property", binding.getRval());
         elements.peek().appendChild(e);
         elements.push(e);
     }
@@ -293,34 +302,30 @@ public class XmlVisitor extends AbstractVisitor {
 
     // Other methods
 
+    private void appendTerminal(final Element parent, final Terminal terminal) {
+        if (terminal.getValue() instanceof Symbol) {
+            Symbol symbol = (Symbol)terminal.getValue();
+            appendText(parent, "property", symbol.getExpansion());
+        } else if (terminal.getValue() instanceof String)
+            appendText(parent, "value", terminal.getValue(), Type.STRING);
+        else if (terminal.getValue() instanceof Boolean)
+            appendText(parent, "value", terminal.getValue(), Type.BOOL);
+        else
+            appendText(parent, "value", terminal.getValue());
+    }
+
     private void appendText(final Element parent, final String node,
-            final Object value, final String type) {
+        final Object value, final Type type) {
         Element e = document.createElement(node);
         parent.appendChild(e);
-        if (type != null)
-            e.setAttribute("type", type);
+        String typeAttribute = typeAttributeForType(type);
+        if (typeAttribute != null)
+            e.setAttribute("type", typeAttribute);
         e.appendChild(document.createTextNode(value.toString()));
     }
 
     private void appendText(final Element parent, final String node, final Object value) {
-        appendText(parent, node, value, null);
-    }
-
-    private void appendTerminal(final Element parent, final Terminal terminal) {
-        switch (terminal.getType()) {
-        case PROPERTY:
-            appendText(parent, "property", terminal.getValue());
-            break;
-        case BOOLEAN:
-            appendText(parent, "value", terminal.getValue(), "bool");
-            break;
-        case STRING:
-            appendText(parent, "value", terminal.getValue(), "string");
-            break;
-        default:
-            appendText(parent, "value", terminal.getValue());
-            break;
-        }
+        appendText(parent, node, value, Type.NULL);
     }
 
     private String filename(final Checklist checklist) {
@@ -328,6 +333,30 @@ public class XmlVisitor extends AbstractVisitor {
             .toLowerCase()
             .replaceAll(" ", "-");
         return s + ".xml";
+    }
+
+    private String operatorTag(final Operator op) {
+        switch (op) {
+        case AND: return "and";
+        case OR: return "or";
+        case NOT: return "not";
+        case EQ: return "equals";
+        case NE: return "not-equals";
+        case GT: return "greater-than";
+        case LT: return "less-than";
+        case GE: return "greater-than-equals";
+        case LE: return "less-than-equals";
+        }
+        assert false;
+        return null;
+    }
+
+    private String typeAttributeForType(final Type type) {
+        if (type == Type.BOOL)
+            return "bool";
+        if (type == Type.STRING)
+            return "string";
+        return null;
     }
 
     private void write(final Document document, final String filename,

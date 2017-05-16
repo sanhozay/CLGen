@@ -14,34 +14,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.flightgear.clgen.listener;
-
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.tree.ParseTreeListener;
+package org.flightgear.clgen.symbol;
 
 /**
- * Semantic error listener interface.
+ * Symbol type.
  *
  * @author Richard Senior
  */
-public interface SemanticErrorListener {
+public enum Type {
+
+    NULL, INT, DOUBLE, BOOL, STRING;
+
+    public boolean isNumeric() {
+        return this == INT || this == DOUBLE;
+    }
 
     /**
-     * Handle a semantic error.
+     * Gets a type based on an object type.
      *
-     * @param listener the originating listener
-     * @param token the offending token
-     * @param msg the error message
+     * @param o the object
+     * @return the inferred type from the object
      */
-    void semanticError(final ParseTreeListener listener, final Token token, final String msg);
-
-    /**
-     * Handle a semantic warning.
-     *
-     * @param listener the originating listener
-     * @param token the offending token
-     * @param msg the warning message
-     */
-    void semanticWarning(final ParseTreeListener listener, final Token token, final String msg);
-
+    public static Type typeOf(final Object o) {
+        if (o instanceof Symbol) {
+            Symbol symbol = (Symbol)o;
+            return symbol.getType();
+        }
+        if (o instanceof Integer) return Type.INT;
+        if (o instanceof Double) return Type.DOUBLE;
+        if (o instanceof Boolean) return Type.BOOL;
+        if (o instanceof String) return Type.STRING;
+        return Type.NULL;
+    }
 }

@@ -17,6 +17,7 @@
 package org.flightgear.clgen.ast.conditions;
 
 import org.flightgear.clgen.ast.Visitable;
+import org.flightgear.clgen.symbol.Type;
 
 /**
  * Abstract condition.
@@ -26,5 +27,9 @@ import org.flightgear.clgen.ast.Visitable;
 public abstract class AbstractCondition implements Visitable {
 
     public abstract void addChild(AbstractCondition child);
+
+    public Type getType() {
+        return Type.NULL;
+    }
 
 }
