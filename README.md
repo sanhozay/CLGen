@@ -288,8 +288,9 @@ Redefinition of an alias within an item is not allowed.
 
 ### Types
 
-Generally speaking, CLGen is an untyped language, but `value` tags in the 
-output files respect types inferred from conditions and assignments.
+When aliases are first defined, they are untyped. CLGen infers types based on
+bindings and conditions and will warn about inconsistent usage. The `value` tags
+in the output files respect types inferred from conditions and assignments.
 
 For example:
 
@@ -338,7 +339,8 @@ The condition is a boolean expression, consisting of the following operators:
 `&&`  
 `||`  
 
-The usual precedence and associativity rules apply, e.g. refer to C or Java.
+The usual precedence and associativity rules apply. Refer to documentation for
+C, C++, Java, etc.
 
 Duplicate state names are not allowed. The comparison is case sensitive but
 it is recommended that uppercase is always used for state names.
