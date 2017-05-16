@@ -62,6 +62,7 @@ public class Symbol {
      * are allowed.
      *
      * @param type the new type
+     * @throws TypeException in the case of questionable type usage
      */
     public void setType(final Type type) throws TypeException {
         if (this.type == Type.NULL || this.type == type) {

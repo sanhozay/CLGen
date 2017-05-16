@@ -33,28 +33,60 @@ public abstract class AbstractListener extends CLGenBaseListener {
     protected final List<SemanticErrorListener> errorListeners = new ArrayList<>();
     private int errors = 0, warnings = 0;
 
+    /**
+     * Gets the number of errors found by this listener
+     *
+     * @return the number of errors
+     */
     public int getNumberOfErrors() {
         return errors;
     }
 
+    /**
+     * Gets the number of warnings found by this listener
+     *
+     * @return the number of warnings
+     */
     public int getNumberOfWarnings() {
         return warnings;
     }
 
-    public void addErrorListener(final SemanticErrorListener el) {
-        errorListeners.add(el);
+    /**
+     * Adds an error listener to the error listeners for this listener
+     *
+     * @param errorListener the error listener to add
+     */
+    public void addErrorListener(final SemanticErrorListener errorListener) {
+        errorListeners.add(errorListener);
     }
 
+    /**
+     * Removes all error listeners from this listener.
+     */
     public void removeErrorListeners() {
         errorListeners.clear();
     }
 
+    /**
+     * Notify an error to the registered error listeners.
+     *
+     * @param token the offending token
+     * @param format a format string for the error message
+     * @param args an array of arguments to the format string
+     */
     protected void error(final Token token, final String format, final Object ... args) {
         String message = String.format(format, args);
         errorListeners.forEach(l -> l.semanticError(this, token, message));
         ++errors;
     }
 
+    /**
+     * Notify a warning to the registered error listeners.
+     *
+     * @param token the offending token
+     * @param format a format string for the warning message
+     * @param args an array of arguments to the format string
+     */
     protected void warning(final Token token, final String format, final Object ... args) {
         String message = String.format(format, args);
         errorListeners.forEach(l -> l.semanticWarning(this, token, message));
@@ -66,6 +98,7 @@ public abstract class AbstractListener extends CLGenBaseListener {
      *
      * @param q the quoted string
      * @return the string with double-quotes removed
+     * @throws IllegalArgumentException if the string is not quoted
      */
      protected String unquote(final String q) {
         if (q.charAt(0) != '"' || q.charAt(q.length() - 1) != '"') {

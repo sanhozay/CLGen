@@ -29,6 +29,12 @@ public enum Type {
         return this == INT || this == DOUBLE;
     }
 
+    /**
+     * Gets a type based on an object type.
+     *
+     * @param o the object
+     * @return the inferred type from the object
+     */
     public static Type typeOf(final Object o) {
         if (o instanceof Symbol) {
             Symbol symbol = (Symbol)o;

@@ -33,6 +33,11 @@ public class ErrorListener extends BaseErrorListener implements SemanticErrorLis
 
     private final CommonTokenStream tokenStream;
 
+    /**
+     * Construct an error listener with a token stream
+     *
+     * @param tokenStream the token stream (from a lexer)
+     */
     public ErrorListener(final CommonTokenStream tokenStream) {
         this.tokenStream = tokenStream;
     }

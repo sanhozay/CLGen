@@ -26,7 +26,22 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  */
 public interface SemanticErrorListener {
 
+    /**
+     * Handle a semantic error.
+     *
+     * @param listener the originating listener
+     * @param token the offending token
+     * @param msg the error message
+     */
     void semanticError(final ParseTreeListener listener, final Token token, final String msg);
+
+    /**
+     * Handle a semantic warning.
+     *
+     * @param listener the originating listener
+     * @param token the offending token
+     * @param msg the warning message
+     */
     void semanticWarning(final ParseTreeListener listener, final Token token, final String msg);
 
 }
