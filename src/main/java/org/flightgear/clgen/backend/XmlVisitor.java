@@ -78,6 +78,8 @@ public class XmlVisitor extends AbstractVisitor {
     private final Deque<Element> wrapperElements = new ArrayDeque<>();
     private final Deque<Element> elements = new ArrayDeque<>();
 
+    private final Deque<BinaryCondition> binaryConditions = new ArrayDeque<>();
+
     public XmlVisitor(final Path outputDir) throws GeneratorException {
         this.outputDir = outputDir;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -205,14 +207,19 @@ public class XmlVisitor extends AbstractVisitor {
 
     @Override
     public void enter(final BinaryCondition condition) {
-        Element e = document.createElement(operatorTag(condition.getOperator()));
-        elements.peek().appendChild(e);
-        elements.push(e);
+        if (nestedCondition(condition)) {
+            Element e = document.createElement(operatorTag(condition.getOperator()));
+            elements.peek().appendChild(e);
+            elements.push(e);
+        }
+        binaryConditions.push(condition);
     }
 
     @Override
     public void exit(final BinaryCondition condition) {
-        elements.pop();
+        binaryConditions.pop();
+        if (nestedCondition(condition))
+            elements.pop();
     }
 
     @Override
@@ -333,6 +340,11 @@ public class XmlVisitor extends AbstractVisitor {
             .toLowerCase()
             .replaceAll(" ", "-");
         return s + ".xml";
+    }
+
+    private boolean nestedCondition(final BinaryCondition condition) {
+        return binaryConditions.isEmpty() ||
+            condition.getOperator() != binaryConditions.peek().getOperator();
     }
 
     private String operatorTag(final Operator op) {
