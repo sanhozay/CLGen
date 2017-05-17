@@ -332,16 +332,15 @@ checklist("Start Engines") {
     check("Propeller", "CLEAR");
     check("Beacon", "ON");
     check("Engine", "START");
-    check("Carb Heat", "AS REQUIRED");
+}
+
+checklist("Before Taxi") {
     check("Throttle", "TICK OVER");
     check("Oil Pressure", "CHECK", "(minimum 25psi)");
     check("Starter Master", "OFF");
     check("Boost Pump", "OFF");
     check("Alternator Warning", "OFF");
     check("Transponder", "SBY");
-}
-
-checklist("Before Taxi") {
     check("Autopilot", "CHECK");
     check("Radios", "ON");
     check("Suction", "CHECK", "(minimum 3\")");
