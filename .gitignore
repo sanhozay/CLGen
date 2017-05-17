@@ -1,7 +1,15 @@
-build/**
-bin/**
-samples/**/*.xml
-.gradle/**
-.settings
+# Gradle
+.gradle/
+build/
+
+# Eclipse
 .classpath
 .project
+.settings
+bin/
+
+# Ignore samples outputs
+samples/**/*.dot
+samples/**/*.pdf
+samples/**/*.png
+samples/**/*.xml
