@@ -207,7 +207,7 @@ public class XmlVisitor extends AbstractVisitor {
 
     @Override
     public void enter(final BinaryCondition condition) {
-        if (nestedCondition(condition)) {
+        if (!nestedCondition(condition)) {
             Element e = document.createElement(operatorTag(condition.getOperator()));
             elements.peek().appendChild(e);
             elements.push(e);
@@ -218,7 +218,7 @@ public class XmlVisitor extends AbstractVisitor {
     @Override
     public void exit(final BinaryCondition condition) {
         binaryConditions.pop();
-        if (nestedCondition(condition))
+        if (!nestedCondition(condition))
             elements.pop();
     }
 
@@ -343,8 +343,8 @@ public class XmlVisitor extends AbstractVisitor {
     }
 
     private boolean nestedCondition(final BinaryCondition condition) {
-        return binaryConditions.isEmpty() ||
-            condition.getOperator() != binaryConditions.peek().getOperator();
+        return !binaryConditions.isEmpty() &&
+            condition.getOperator() == binaryConditions.peek().getOperator();
     }
 
     private String operatorTag(final Operator op) {
