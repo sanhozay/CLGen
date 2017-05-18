@@ -26,15 +26,27 @@ public class Marker implements Visitable {
     private final Coordinate coordinate;
     private final double scale;
 
+    /**
+     * Constructs a tutorial marker with a coordinate and scale.
+     *
+     * @param coordinate the coordinate
+     * @param scale the scale (size of pink circle in Flightgear)
+     */
     public Marker(final Coordinate coordinate, final double scale) {
         this.coordinate = coordinate;
         this.scale = scale;
     }
 
+    /**
+     * @return the coordinate
+     */
     public Coordinate getCoordinate() {
         return coordinate;
     }
 
+    /**
+     * @return the scale
+     */
     public double getScale() {
         return scale;
     }

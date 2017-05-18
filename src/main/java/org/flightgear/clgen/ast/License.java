@@ -86,18 +86,30 @@ public class License {
 
     // Accessors
 
+    /**
+     * @return the author of the checklists
+     */
     public String getAuthor() {
         return author;
     }
 
+    /**
+     * @param author the author of the checklists
+     */
     public void setAuthor(final String author) {
         this.author = author;
     }
 
+    /**
+     * @return the title of the document to which this license is attached
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     * @param title the title of the document to which this license is attached
+     */
     public void setTitle(final String title) {
         this.title = title;
     }

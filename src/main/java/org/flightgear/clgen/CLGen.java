@@ -50,6 +50,11 @@ public class CLGen {
     private int errors = 0;
     private int warnings = 0;
 
+    /**
+     * Constructs the main class with the path of the input file.
+     *
+     * @param input the path to the input file
+     */
     public CLGen(final Path input) {
         this.input = input;
     }
@@ -116,7 +121,6 @@ public class CLGen {
             );
         else {
             Map<String, Item> items = buildItems(context);
-            //symbolTable.dump();
             AbstractSyntaxTree ast = buildAST(items, context);
             if (errors > 0) {
                 System.err.format(

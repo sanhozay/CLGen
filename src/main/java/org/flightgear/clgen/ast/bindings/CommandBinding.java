@@ -32,18 +32,41 @@ public class CommandBinding extends AbstractBinding {
     private final String command;
     private final Map<String, Object> params = new OrderedHashMap<>();
 
+    /**
+     * Constructs a command binding with a command.
+     * <p>
+     * The command is the name of the fgcommand, e.g. property-interpolate
+     *
+     * @param command the fgcommand
+     */
     public CommandBinding(final String command) {
         this.command = command;
     }
 
+    /**
+     * Gets the fgcommand associated with this binding.
+     *
+     * @return the command
+     */
     public String getCommand() {
         return command;
     }
 
+    /**
+     * Adds a parameter to this command binding.
+     *
+     * @param name the name of the parameter
+     * @param value the value of the parameter
+     */
     public void addParam(final String name, final Object value) {
         params.put(name, value);
     }
 
+    /**
+     * Gets the map of parameters associated with this command binding.
+     *
+     * @return a map of parameter name/values
+     */
     public Map<String, Object> getParams() {
         return params;
     }

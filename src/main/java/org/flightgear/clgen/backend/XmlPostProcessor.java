@@ -29,16 +29,31 @@ public class XmlPostProcessor {
     private String xml;
     private final List<String> breakPatterns = new ArrayList<>();
 
+    /**
+     * Sets the XML content to be processed by this post-processor.
+     *
+     * @param xml the XML content
+     */
     public void setXml(final String xml) {
         this.xml = xml;
     }
 
+    /**
+     * Gets the processed XML content from this post-processor
+     *
+     * @return the processed XML
+     */
     public String getXml() {
         xml = xml.replaceAll("--><", "-->\n<");
         breakPatterns.forEach(pattern -> xml = xml.replaceAll(pattern, pattern + "\n"));
         return xml;
     }
 
+    /**
+     * Adds patterns after which line breaks will be generated.
+     *
+     * @param patterns a variable argument list of patterns
+     */
     public void addBreakPatterns(final String ... patterns) {
         for (String pattern : patterns)
             breakPatterns.add(pattern);

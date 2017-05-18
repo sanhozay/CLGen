@@ -32,10 +32,20 @@ public class BinaryCondition extends AbstractCondition {
     private AbstractCondition lhs = null;
     private AbstractCondition rhs = null;
 
+    /**
+     * Constructs a binary condition with its operator.
+     *
+     * @param operator the operator
+     */
     public BinaryCondition(final Operator operator) {
         this.operator = operator;
     }
 
+    /**
+     * Gets the operator associated with this condition.
+     *
+     * @return the operator, should not be null
+     */
     public Operator getOperator() {
         return operator;
     }
@@ -59,6 +69,11 @@ public class BinaryCondition extends AbstractCondition {
         return lhs.getType();
     }
 
+    /**
+     * Resolves the type of symbols that form part of this condition.
+     *
+     * @throws TypeException if there is a type conflict
+     */
     public void resolveTypes() throws TypeException {
         if (lhs instanceof Terminal && ((Terminal)lhs).getValue() instanceof Symbol) {
             Symbol symbol = (Symbol)((Terminal)lhs).getValue();

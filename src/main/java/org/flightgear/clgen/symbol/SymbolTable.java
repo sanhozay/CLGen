@@ -67,6 +67,8 @@ public class SymbolTable {
 
     /**
      * Looks up a symbol in the symbol table.
+     * <p>
+     * The specified scope is searched first, then the global scope.
      *
      * @param scope the scope
      * @param id the identifier

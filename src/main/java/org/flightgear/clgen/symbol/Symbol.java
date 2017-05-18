@@ -42,14 +42,29 @@ public class Symbol {
         type = Type.NULL;
     }
 
+    /**
+     * @return the id of the symbol, i.e. the alias name
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * @return the expansion of this symbol, e.g. "controls/gear/brake-parking"
+     */
     public String getExpansion() {
         return expansion;
     }
 
+    /**
+     * Gets the type of the symbol.
+     * <p>
+     * Types are initially Type.NULL and are resolved by the
+     * {@link org.flightgear.clgen.listener.ItemListener} based on the types
+     * of terminals used in conditions and bindings that this symbol is used in.
+     *
+     * @return the type of the symbol
+     */
     public Type getType() {
         return type;
     }

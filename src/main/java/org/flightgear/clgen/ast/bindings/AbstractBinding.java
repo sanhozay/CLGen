@@ -28,10 +28,20 @@ public abstract class AbstractBinding implements Visitable {
 
     protected Condition condition;
 
+    /**
+     * Gets the condition applicable to the binding.
+     *
+     * @return the binding condition (may be null)
+     */
     public Condition getCondition() {
         return condition;
     }
 
+    /**
+     * Sets the condition applicable to the binding.
+     *
+     * @param condition the condition
+     */
     public void setCondition(final Condition condition) {
         this.condition = condition;
     }

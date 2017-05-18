@@ -52,6 +52,11 @@ public class PdfVisitor extends AbstractVisitor {
     private final Path filename;
     private final Document document = new Document();
 
+    /**
+     * Constructs a PDF visitor with the path to the output directory.
+     *
+     * @param outputDir the output directory
+     */
     public PdfVisitor(final Path outputDir) {
         try {
             document.setMargins(MARGIN, MARGIN, MARGIN, MARGIN);

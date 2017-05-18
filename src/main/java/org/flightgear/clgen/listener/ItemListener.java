@@ -391,6 +391,11 @@ public class ItemListener extends AbstractListener {
 
     // Accessors
 
+    /**
+     * Gets the lookup table of items built by this listener.
+     *
+     * @return the item lookup table
+     */
     public Map<String, Item> getItems() {
         return items;
     }

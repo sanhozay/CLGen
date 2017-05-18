@@ -33,26 +33,57 @@ public class State implements Visitable {
     private final List<AbstractBinding> bindings = new ArrayList<>();
     private Condition condition;
 
+    /**
+     * Constructs a state with the state name.
+     * <p>
+     * The state name is used to look up states in the items lookup table.
+     *
+     * @param name the name of the state, e.g. "OFF".
+     */
     public State(final String name) {
         this.name = name;
     }
 
+    /**
+     * @return the name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Sets the condition associated with the state.
+     * <p>
+     * This will be a top-level wrapper condition. The content of the
+     * condition will be added as child conditions.
+     *
+     * @param condition the top-level condtition
+     */
     public void setCondition(final Condition condition) {
         this.condition = condition;
     }
 
+    /**
+     * @return the condition for this state
+     */
     public Condition getCondition() {
         return condition;
     }
 
+    /**
+     * Adds a binding to this state.
+     *
+     * @param binding the binding
+     */
     public void addBinding(final AbstractBinding binding) {
         bindings.add(binding);
     }
 
+    /**
+     * Gets the list of bindings associated with this state.
+     *
+     * @return the list of bindings
+     */
     public List<AbstractBinding> getBindings() {
         return bindings;
     }

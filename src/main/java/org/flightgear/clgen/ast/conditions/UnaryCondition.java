@@ -31,18 +31,32 @@ public class UnaryCondition extends AbstractCondition {
     private final Operator operator;
     private AbstractCondition operand;
 
+    /**
+     * Constructs a unary condition with no operator.
+     */
     public UnaryCondition() {
         operator = null;
     }
 
+    /**
+     * Constructs a unary condition with an operator.
+     *
+     * @param operator the operator
+     */
     public UnaryCondition(final Operator operator) {
         this.operator = operator;
     }
 
+    /**
+     * @return the operator, may be null
+     */
     public Operator getOperator() {
         return operator;
     }
 
+    /**
+     * @return the operand
+     */
     public AbstractCondition getOperand() {
         return operand;
     }
@@ -52,6 +66,11 @@ public class UnaryCondition extends AbstractCondition {
         return Type.BOOL;
     }
 
+    /**
+     * Resolves the type of symbols that form part of this condition.
+     *
+     * @throws TypeException if there is a type conflict
+     */
     public void resolveTypes() throws TypeException {
         if (operand instanceof Terminal && ((Terminal)operand).getValue() instanceof Symbol) {
             Symbol symbol = (Symbol)((Terminal)operand).getValue();

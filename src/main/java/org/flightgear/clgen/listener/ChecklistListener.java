@@ -45,6 +45,14 @@ public class ChecklistListener extends AbstractListener {
     private Checklist checklist;
     private Page page;
 
+    /**
+     * Constructs a checklist listener with the item lookup table.
+     * <p>
+     * The items table should be populated before creating this
+     * listener.
+     *
+     * @param items the item lookup table
+     */
     public ChecklistListener(final Map<String, Item> items) {
         this.items = items;
     }
@@ -106,6 +114,13 @@ public class ChecklistListener extends AbstractListener {
 
     // Accessors
 
+    /**
+     * Gets the abstract syntax tree.
+     * <p>
+     * This is the product of this listener.
+     *
+     * @return the abstract syntax tree
+     */
     public AbstractSyntaxTree getAST() {
         return ast;
     }

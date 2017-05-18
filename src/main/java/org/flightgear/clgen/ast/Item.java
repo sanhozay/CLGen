@@ -30,6 +30,11 @@ public class Item implements Visitable {
     private final Map<String, State> states = new HashMap<>();
     private Marker marker;
 
+    /**
+     * Constructs an item with a name.
+     *
+     * @param name the name of the item
+     */
     public Item(final String name) {
         this.name = name;
     }

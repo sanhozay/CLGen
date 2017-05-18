@@ -29,6 +29,11 @@ public class Checklist implements Visitable, CheckContainer {
     private final List<Page> pages = new ArrayList<>();
     private final String title;
 
+    /**
+     * Constructs a checklist with a title.
+     *
+     * @param title the title
+     */
     public Checklist(final String title) {
         this.title = title;
     }

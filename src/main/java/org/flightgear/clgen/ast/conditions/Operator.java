@@ -21,6 +21,7 @@ package org.flightgear.clgen.ast.conditions;
  *
  * @author Richard Senior
  */
+@SuppressWarnings("javadoc")
 public enum Operator {
 
     AND, OR, NOT, EQ, NE, GT, LT, GE, LE;

@@ -45,6 +45,11 @@ public class DotVisitor extends AbstractVisitor {
     private double hue = 0.0;
     private double colorCycle;
 
+    /**
+     * Constructs a DOT visitor with the path to the output directory.
+     *
+     * @param outputDir the path to the output directory
+     */
     public DotVisitor(final Path outputDir) {
         this.outputDir = outputDir;
     }

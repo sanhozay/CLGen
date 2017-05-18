@@ -31,6 +31,12 @@ public class Check implements Visitable {
 
     private final List<String> additionalValues = new ArrayList<>();
 
+    /**
+     * Constructs a check with an item and state.
+     *
+     * @param item the item
+     * @param state the state
+     */
     public Check(final Item item, final State state) {
         this.item = item;
         this.state = state;

@@ -25,20 +25,42 @@ public class Coordinate {
 
     private final double x, y, z;
 
+    /**
+     * Constructs a coordinate with x, y and z values
+     *
+     * @param x the x value
+     * @param y the y value
+     * @param z the z value
+     */
     public Coordinate(final double x, final double y, final double z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
+    /**
+     * Gets the x coordinate
+     *
+     * @return the x coordinate
+     */
     public double getX() {
         return x;
     }
 
+    /**
+     * Gets the y coordinate
+     *
+     * @return the y coordinate
+     */
     public double getY() {
         return y;
     }
 
+    /**
+     * Gets the z coordinate
+     *
+     * @return the z coordinate
+     */
     public double getZ() {
         return z;
     }

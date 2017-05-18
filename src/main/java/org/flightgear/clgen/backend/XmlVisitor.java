@@ -80,6 +80,12 @@ public class XmlVisitor extends AbstractVisitor {
 
     private final Deque<BinaryCondition> binaryConditions = new ArrayDeque<>();
 
+    /**
+     * Constructs an XML visitor with the path to an output directory.
+     *
+     * @param outputDir the path to the output directory
+     * @throws GeneratorException if the visitor could not be created
+     */
     public XmlVisitor(final Path outputDir) throws GeneratorException {
         this.outputDir = outputDir;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -207,6 +213,12 @@ public class XmlVisitor extends AbstractVisitor {
 
     @Override
     public void enter(final BinaryCondition condition) {
+        /*
+         * To optimize the XML output, operator elements are only pushed onto the
+         * stack if the parent condition differs from the current condition. This
+         * simplifies conditional structures based on parse trees built from
+         * expressions like a && b&& c -> ((a && b) && c)
+         */
         if (!nestedCondition(condition)) {
             Element e = document.createElement(operatorTag(condition.getOperator()));
             elements.peek().appendChild(e);

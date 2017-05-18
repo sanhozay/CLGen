@@ -26,8 +26,22 @@ import org.flightgear.clgen.symbol.Type;
  */
 public abstract class AbstractCondition implements Visitable {
 
+    /**
+     * Adds a child condition to this condition.
+     *
+     * @param child the child condition
+     */
     public abstract void addChild(AbstractCondition child);
 
+    /**
+     * Gets the type of the condition.
+     * <p>
+     * For terminals, the condition type is based on the value. For
+     * conditions, the type is pulled up from any terminals with
+     * known types before being pushed down to symbols (aliases).
+     *
+     * @return the type of the condition
+     */
     public Type getType() {
         return Type.NULL;
     }

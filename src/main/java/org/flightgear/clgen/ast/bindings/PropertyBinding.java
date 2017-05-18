@@ -29,15 +29,27 @@ public class PropertyBinding extends AbstractBinding {
     private final Symbol lval;
     private final Symbol rval;
 
+    /**
+     * Constructs a property binding with the lvalue and rvalue.
+     *
+     * @param lval the lvalue
+     * @param rval the rvalue
+     */
     public PropertyBinding(final Symbol lval, final Symbol rval) {
         this.lval = lval;
         this.rval = rval;
     }
 
+    /**
+     * @return the lvalue
+     */
     public Symbol getLval() {
         return lval;
     }
 
+    /**
+     * @return the rvalue
+     */
     public Symbol getRval() {
         return rval;
     }
