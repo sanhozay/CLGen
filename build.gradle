@@ -35,8 +35,11 @@ jar {
         attributes('Main-Class': 'org.flightgear.clgen.CLGen')
     }
     from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
     }
+    exclude "META-INF/*.SF"
+    exclude "META-INF/*.DSA"
+    exclude "META-INF/*.RSA"
 }
 
 task release(type: Zip, dependsOn: build) {
