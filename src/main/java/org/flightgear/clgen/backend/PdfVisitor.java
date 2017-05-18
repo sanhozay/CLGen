@@ -16,119 +16,114 @@
  */
 package org.flightgear.clgen.backend;
 
-import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.nio.file.Path;
 
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.flightgear.clgen.GeneratorException;
 import org.flightgear.clgen.ast.AbstractSyntaxTree;
 import org.flightgear.clgen.ast.Check;
 import org.flightgear.clgen.ast.Checklist;
 
-import rst.pdfbox.layout.elements.Document;
-import rst.pdfbox.layout.elements.Paragraph;
-import rst.pdfbox.layout.elements.VerticalSpacer;
-import rst.pdfbox.layout.elements.render.RenderContext;
-import rst.pdfbox.layout.elements.render.RenderListener;
-import rst.pdfbox.layout.elements.render.VerticalLayoutHint;
-import rst.pdfbox.layout.text.Alignment;
-import rst.pdfbox.layout.text.FontDescriptor;
-import rst.pdfbox.layout.text.Position;
-import rst.pdfbox.layout.text.TextFlow;
-import rst.pdfbox.layout.text.TextFlowUtil;
-import rst.pdfbox.layout.text.TextSequenceUtil;
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Element;
+import com.lowagie.text.Font;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.BaseFont;
+import com.lowagie.text.pdf.ColumnText;
+import com.lowagie.text.pdf.PdfPageEventHelper;
+import com.lowagie.text.pdf.PdfWriter;
 
 /**
  * Creates a PDF representation of the checklists.
  *
  * @author Richard Senior
  */
-public class PdfVisitor extends AbstractVisitor implements RenderListener {
+public class PdfVisitor extends AbstractVisitor {
 
-    private static final FontDescriptor normal;
-    private static final FontDescriptor heading;
+    private static final Font H1 = new Font(Font.COURIER, 14.0f, Font.BOLD);
+    private static final Font H2 = new Font(Font.COURIER, 12.0f, Font.BOLD);
+    private static final Font P = new Font(Font.COURIER, 12.0f, Font.NORMAL);
 
-    private final Path outputDir;
-    private final Document document;
+    private static final float MARGIN = 70.0f;
 
-    static {
-        normal = new FontDescriptor(PDType1Font.COURIER, 12.0f);
-        heading = new FontDescriptor(PDType1Font.COURIER_BOLD, 12.0f);
-    }
+    private final Path filename;
+    private final Document document = new Document();
 
     public PdfVisitor(final Path outputDir) {
-        this.outputDir = outputDir;
-        document = new Document(70, 70, 50, 100);
-        document.addRenderListener(this);
+        try {
+            document.setMargins(MARGIN, MARGIN, MARGIN, MARGIN);
+            filename = outputDir.resolve("checklists.pdf");
+            FileOutputStream out = new FileOutputStream(filename.toFile());
+            PdfWriter writer = PdfWriter.getInstance(document, out);
+            writer.setPageEvent(new Footer());
+            document.open();
+        } catch (FileNotFoundException | DocumentException e) {
+            document.close();
+            throw new GeneratorException(e);
+        }
     }
 
     @Override
     public void enter(final AbstractSyntaxTree ast) {
         try {
-            Paragraph p = new Paragraph();
-            p.addText("CHECKLIST", 18, PDType1Font.COURIER_BOLD);
-            document.add(p, VerticalLayoutHint.CENTER);
-            document.add(new VerticalSpacer(18));
-        } catch (IOException e) {
+            Paragraph t = new Paragraph("CHECKLIST", H1);
+            t.setSpacingAfter(12.0f);
+            t.setAlignment(Element.ALIGN_CENTER);
+            document.add(t);
+        } catch (DocumentException e) {
+            document.close();
             throw new GeneratorException(e);
         }
     }
 
     @Override
     public void exit(final AbstractSyntaxTree ast) {
-        try {
-            Path path = outputDir.resolve("checklists.pdf");
-            document.save(path.toFile());
-            System.out.println(path.toAbsolutePath().normalize().toString());
-        } catch (IOException e) {
-            throw new GeneratorException(e);
-        }
+        document.close();
+        System.out.println(filename.toAbsolutePath().normalize().toString());
     }
 
     @Override
     public void enter(final Checklist checklist) {
         try {
-            Paragraph p = new Paragraph();
-            p.addText(checklist.getTitle().toUpperCase(), heading.getSize(), heading.getFont());
+            Paragraph p = new Paragraph(checklist.getTitle().toUpperCase(), H2);
+            p.setSpacingBefore(24.0f);
             document.add(p);
-        } catch (IOException e) {
+        } catch (DocumentException e) {
+            document.close();
             throw new GeneratorException(e);
         }
-    }
-
-    @Override
-    public void exit(final Checklist checklist) {
-        document.add(new VerticalSpacer(24));
     }
 
     @Override
     public void enter(final Check check) {
         try {
-            Paragraph p = new Paragraph();
-            p.setLineSpacing(1.5f);
-            String s = String.format("%s %s %s",
-                check.getItem().getName(),
-                dots(check.getItem().getName(), check.getState().getName(), textWidth(normal) - 2),
-                check.getState().getName()
-            );
-            p.addText(s, normal.getSize(), normal.getFont());
-            for (String value : check.getAdditionalValues()) {
-                p.setAlignment(Alignment.Right);
-                p.addText(value + "\n", normal.getSize(), normal.getFont());
-            }
+            String i = check.getItem().getName();
+            String s = check.getState().getName();
+            String line = String.format("%s %s %s", i, dots(i, s, textWidth(P) - 2), s);
+            Paragraph p = new Paragraph(line, P);
+            p.setSpacingBefore(6.0f);
             document.add(p);
-        } catch (IOException e) {
+            for (String value : check.getAdditionalValues()) {
+                p = new Paragraph(value, P);
+                p.setSpacingBefore(6.0f);
+                p.setAlignment(Element.ALIGN_RIGHT);
+                document.add(p);
+            }
+        } catch (DocumentException e) {
+            document.close();
             throw new GeneratorException(e);
         }
     }
 
-    private int textWidth(final FontDescriptor fontDescriptor) {
-        try {
-            float w = TextSequenceUtil.getEmWidth(fontDescriptor);
-            return (int)Math.floor(document.getPageWidth() / w);
-        } catch (IOException e) {
-            throw new GeneratorException(e);
-        }
+    // Other methods
+
+    private int textWidth(final Font font) {
+        BaseFont b = font.getCalculatedBaseFont(false);
+        float w = b.getWidthPoint(".", font.getSize());
+        return (int)Math.floor((document.getPageSize().getWidth() - MARGIN * 2) / w);
     }
 
     private String dots(final String pre, final String post, int width) {
@@ -140,18 +135,22 @@ public class PdfVisitor extends AbstractVisitor implements RenderListener {
         return sb.toString();
     }
 
-    // Render Listener
+    // Page Event Helper
 
-    @Override
-    public void beforePage(final RenderContext renderContext) throws IOException {}
+    private static final class Footer extends PdfPageEventHelper {
 
-    @Override
-    public void afterPage(final RenderContext renderContext) throws IOException {
-        String content = String.format("%s", renderContext.getPageIndex() + 1);
-        TextFlow text = TextFlowUtil.createTextFlow(content, normal.getSize(), normal.getFont());
-        float offset = renderContext.getPageFormat().getMarginLeft();
-        offset += TextSequenceUtil.getOffset(text, renderContext.getWidth(), Alignment.Center);
-        Position p = new Position(offset, 60);
-        text.drawText(renderContext.getContentStream(), p, Alignment.Center, null);
+        @Override
+        public void onEndPage(final PdfWriter writer, final Document document) {
+            Phrase pageNo = new Phrase(Integer.toString(document.getPageNumber()), P);
+            float x = document.getPageSize().getWidth() / 2;
+            float y = MARGIN / 2;
+            ColumnText.showTextAligned(
+                writer.getDirectContent(),
+                Element.ALIGN_CENTER,
+                pageNo, x, y, 0f
+            );
+        }
+
     }
+
 }

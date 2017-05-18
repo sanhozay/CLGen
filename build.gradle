@@ -18,16 +18,13 @@ generateGrammarSource {
 
 repositories {
     mavenCentral()
-    maven {
-        url "https://jitpack.io"
-    }
 }
 
 dependencies {
     antlr 'org.antlr:antlr4:4.7'
     compile 'org.antlr:antlr4-runtime:4.7'
     compile 'org.apache.velocity:velocity:1.7'
-    compile 'com.github.ralfstuckert.pdfbox-layout:pdfbox2-layout:0.9.0'
+    compile 'com.github.librepdf:openpdf:1.0.1'
     testCompile 'org.codehaus.groovy:groovy-all:2.4.11'
     testCompile 'cglib:cglib-nodep:3.2.5'
     testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
