@@ -31,7 +31,7 @@ ANYCHAR: . ;
 // ----------------------------------------------------------------------------
 
 specification
-    : author? items checklists
+    : author? globals items checklists
     ;
 
 author
@@ -39,6 +39,11 @@ author
     | 'author' '(' STRING ')' {
         notifyErrorListeners("Unexpected input, did you forget a ';'?");
     }
+    ;
+
+globals
+    : /* empty */
+    | declaration globals
     ;
 
 items

@@ -247,7 +247,11 @@ holder.
 
     author("Richard Senior");
 
-Therafter, item definitions must come before checklist definitions.
+Therafter, global aliases and item definitions must come before checklist 
+definitions. Globals should only be used for aliases that are used across
+multiple items and it is recommended that upper case is used for their names. 
+
+    AUTO = "sim/checklists/auto/active";
 
     item("Parking Brake") {
         ...
@@ -292,6 +296,9 @@ must be letters, numbers, underscore or hyphens. These are valid identifiers:
     beacon, engine0, fuel_pump, outputVolts, power-button, _switch
 
 Redefinition of an alias within an item is not allowed.
+
+Global aliases can be used in any item and must be declared immediately
+before the first item, after the author definition.
 
 ### Types
 

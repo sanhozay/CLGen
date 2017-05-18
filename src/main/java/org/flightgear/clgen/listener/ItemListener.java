@@ -85,7 +85,8 @@ public class ItemListener extends AbstractListener {
         String key = ctx.getChild(0).getText();
         String value = unquote(ctx.getChild(2).getText());
         try {
-            symbolTable.add(item.getName(), new Symbol(key, value));
+            String scope = item == null ? SymbolTable.GLOBAL : item.getName();
+            symbolTable.add(scope, new Symbol(key, value));
         } catch (DuplicateSymbolException e) {
             Token token = (Token)ctx.getChild(0).getPayload();
             error(token, "Alias '%s' is already defined in item '%s'",
