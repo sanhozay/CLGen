@@ -49,14 +49,15 @@ item("Beacon") {
     volts = "systems/electrical/outputs/beacon";
     breaker = "controls/switches/circuit-breakers/beacon";
     beaconChecked = "sim/checklists/status/beacon";
-    state("OFF", volts == 0 && beaconChecked) {
+    state("OFF", volts == 0) {
         fgcommand("switch-assign", property=breaker, value=false);
     }
     state("ON", volts > 0) {
         fgcommand("switch-assign", property=breaker, value=true);
     }
-    state("CHECK", volts > 0 || beaconChecked) {
+    state("CHECK & OFF", volts == 0 && beaconChecked) {
         fgcommand("switch-assign", property=breaker, value=true);
+        fgcommand("switch-assign", property=breaker, value=false);
     }
 }
 
@@ -141,6 +142,7 @@ item("Flaps") {
 item("Fuel Tank Selector") {
     tank1 = "consumables/fuel/tank[1]/selected";
     tank2 = "consumables/fuel/tank[2]/selected";
+    state("EITHER", tank1 || tank2) fgcommand("tank-select-left");
     state("BOTH", tank1 && tank2) fgcommand("tank-select-both");
     state("OFF", !(tank1 || tank2)) fgcommand("tank-select-off");
 }
@@ -227,7 +229,7 @@ item("Pitot Heater") {
 item("Carburettor") {
     min = "fdm/jsbsim/propulsion/engine/prime-min";
     primeLevel= "fdm/jsbsim/propulsion/engine/prime-norm";
-    state("PRIMED", primeLevel >= min) primeLevel = 1;
+    state("PRIME", primeLevel >= min) primeLevel = 1;
 }
 
 item("Propeller") {
@@ -309,8 +311,7 @@ checklist("Before Starting Engines") {
     check("Parking Brake", "ON");
     check("Main Battery", "CHECK");
     check("Navigation Lights", "CHECK");
-    check("Beacon", "CHECK");
-    check("Beacon", "OFF");
+    check("Beacon", "CHECK & OFF");
     check("Main Battery", "OFF");
     check("Refuel", "AS REQUIRED");
 }
@@ -318,10 +319,10 @@ checklist("Before Starting Engines") {
 checklist("Start Engines") {
     check("Parking Brake", "ON");
     check("Carb Heat", "COLD");
-    check("Fuel Tank Selector", "BOTH");
+    check("Fuel Tank Selector", "EITHER");
     check("Mixture", "FULL RICH");
     check("Circuit Breakers", "ALL IN");
-    check("Carburettor", "PRIMED", "(1-4 strokes of throttle)");
+    check("Carburettor", "PRIME", "(1-4 strokes of throttle)");
     check("Throttle", "APPROX 1/4");
     check("Main Battery", "ON");
     check("Navigation Lights", "ON");
@@ -334,16 +335,20 @@ checklist("Start Engines") {
     check("Engine", "START");
 }
 
-checklist("Before Taxi") {
-    check("Throttle", "TICK OVER");
+checklist("During Warm Up") {
+    check("Throttle", "TICK OVER", "(800-1200rpm)");
     check("Oil Pressure", "CHECK", "(minimum 25psi)");
+    check("Suction", "CHECK", "(minimum 3\")");
     check("Starter Master", "OFF");
     check("Boost Pump", "OFF");
     check("Alternator Warning", "OFF");
-    check("Transponder", "SBY");
+    check("Carb Heat", "AS REQUIRED");
+}
+
+checklist("Before Taxi") {
     check("Autopilot", "CHECK");
+    check("Transponder", "SBY");
     check("Radios", "ON");
-    check("Suction", "CHECK", "(minimum 3\")");
     check("Heading Indicator", "ALIGN");
     check("Altimeter", "SET");
     check("Taxi Light", "ON");
@@ -386,11 +391,11 @@ checklist("Traffic Pattern") {
 }
 
 checklist("After Landing") {
-    check("Taxi Light", "ON");
-    check("Flaps", "UP");
-    check("Boost Pump", "OFF");
-    check("Carb Heat", "COLD");
     check("Pitot Heater", "OFF");
+    check("Carb Heat", "COLD");
+    check("Boost Pump", "OFF");
+    check("Flaps", "UP");
+    check("Taxi Light", "ON");
     check("Transponder", "SBY");
 }
 
@@ -399,7 +404,7 @@ checklist("Parking") {
     check("Taxi Light", "OFF");
     check("Transponder", "OFF");
     check("Radios", "OFF");
-    check("Throttle", "TICK OVER");
+    check("Throttle", "TICK OVER", "(800-1200rpm)");
     check("Mixture", "IDLE CUTOFF");
     check("Beacon", "OFF");
     check("Alternator", "OFF");
