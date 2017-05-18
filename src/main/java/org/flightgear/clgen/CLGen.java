@@ -28,6 +28,8 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.flightgear.clgen.CLGenParser.SpecificationContext;
 import org.flightgear.clgen.ast.AbstractSyntaxTree;
 import org.flightgear.clgen.ast.Item;
+import org.flightgear.clgen.backend.DotVisitor;
+import org.flightgear.clgen.backend.PdfVisitor;
 import org.flightgear.clgen.backend.UsageVisitor;
 import org.flightgear.clgen.backend.XmlVisitor;
 import org.flightgear.clgen.listener.ChecklistListener;
@@ -127,6 +129,8 @@ public class CLGen {
             ast.accept(usageVisitor);
             warnings += usageVisitor.getNumberOfWarnings();
             ast.accept(new XmlVisitor(input.toAbsolutePath().getParent()));
+            ast.accept(new DotVisitor(input.toAbsolutePath().getParent()));
+            ast.accept(new PdfVisitor(input.toAbsolutePath().getParent()));
             if (warnings > 0)
                 System.out.format(
                     "Generation complete with %d warning%s.\n",

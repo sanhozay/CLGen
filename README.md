@@ -200,6 +200,13 @@ The solution is to create a Nasal script file in the aircraft's Nasal directory
 and add a custom fgcommand to it using `addcommand`. This command can then be
 used from both the cockpit control and the checklist.
 
+## What is checklists.dot and how can I view it?
+
+The .dot file is a visualization of the checklists structure and can be
+rendered to an image using a tool like Graphviz.
+
+    $ dot -o checklists.png -Tpng checklists.dot
+
 ## Checklist Definition Language
 
 The language is designed to feel familiar to Flightgear developers who are
