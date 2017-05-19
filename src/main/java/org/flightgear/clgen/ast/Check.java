@@ -49,7 +49,9 @@ public class Check implements Visitable {
      * @return true if this item is being used as a dummy subtitle
      */
     public boolean isSubtitle() {
-        return state.getName().trim().length() == 0;
+        return state == null ||
+            state.getName() == null ||
+            state.getName().trim().length() == 0;
     }
 
     /**
@@ -59,7 +61,9 @@ public class Check implements Visitable {
      * @return true if this item is being used as a spacer
      */
     public boolean isSpacer() {
-        return item.getName().trim().length() == 0;
+        return item == null ||
+            item.getName() == null |
+            item.getName().trim().length() == 0;
     }
 
     /**

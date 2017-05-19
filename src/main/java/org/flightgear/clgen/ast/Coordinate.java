@@ -23,7 +23,12 @@ package org.flightgear.clgen.ast;
  */
 public class Coordinate {
 
-    private final double x, y, z;
+    private double x, y, z;
+
+    /**
+     * Constructs a blank coordinate
+     */
+    public Coordinate() {}
 
     /**
      * Constructs a coordinate with x, y and z values
@@ -48,6 +53,13 @@ public class Coordinate {
     }
 
     /**
+     * @param x the x coordinate
+     */
+    public void setX(final double x) {
+        this.x = x;
+    }
+
+    /**
      * Gets the y coordinate
      *
      * @return the y coordinate
@@ -57,12 +69,26 @@ public class Coordinate {
     }
 
     /**
+     * @param y the y coordinate
+     */
+    public void setY(final double y) {
+        this.y = y;
+    }
+
+    /**
      * Gets the z coordinate
      *
      * @return the z coordinate
      */
     public double getZ() {
         return z;
+    }
+
+    /**
+     * @param z the z coordinate
+     */
+    public void setZ(final double z) {
+        this.z = z;
     }
 
 }

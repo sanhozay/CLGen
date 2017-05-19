@@ -105,8 +105,8 @@ public class PdfVisitor extends AbstractVisitor {
     @Override
     public void enter(final Check check) {
         try {
-            String i = check.getItem().getName();
-            String s = check.getState().getName();
+            String i = nvl(check.getItem().getName());
+            String s = nvl(check.getState().getName());
             String line = String.format("%s %s %s", i, dots(i, s, textWidth(P) - 2), s);
             Paragraph p = new Paragraph(line, P);
             p.setSpacingBefore(6.0f);
@@ -134,7 +134,7 @@ public class PdfVisitor extends AbstractVisitor {
     private String dots(final String pre, final String post, int width) {
         // Empty checks may be used as subtitles or spacers, in which
         // case no dots are required
-        if (pre.trim().length() == 0 || post.trim().length() == 0)
+        if (empty(pre) || empty(post))
             return "";
         width -= pre.length();
         width -= post.length();
@@ -142,6 +142,14 @@ public class PdfVisitor extends AbstractVisitor {
         while (width-- > 0)
             sb.append('.');
         return sb.toString();
+    }
+
+    private boolean empty(final String s) {
+        return s == null || s.trim().length() == 0;
+    }
+
+    private String nvl(final String s) {
+        return s != null ? s : "";
     }
 
     // Page Event Helper

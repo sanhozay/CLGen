@@ -51,7 +51,6 @@ import org.flightgear.clgen.ast.conditions.Terminal;
 import org.flightgear.clgen.ast.conditions.UnaryCondition;
 import org.flightgear.clgen.symbol.Symbol;
 import org.flightgear.clgen.symbol.Type;
-import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

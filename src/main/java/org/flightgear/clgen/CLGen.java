@@ -35,6 +35,7 @@ import org.flightgear.clgen.backend.XmlVisitor;
 import org.flightgear.clgen.listener.ChecklistListener;
 import org.flightgear.clgen.listener.ErrorListener;
 import org.flightgear.clgen.listener.ItemListener;
+import org.flightgear.clgen.reverse.ChecklistParser;
 
 /**
  * CLGen main class.
@@ -74,7 +75,10 @@ public class CLGen {
         Path path = Paths.get(args[0]).normalize();
         if (path.toFile().canRead())
             try {
-                new CLGen(path).run();
+                if (path.toString().endsWith("xml"))
+                    new ChecklistParser(path).run();
+                else
+                    new CLGen(path).run();
             } catch (Exception e) {
                 e.printStackTrace(System.err);
                 System.err.println("Generation failed.");

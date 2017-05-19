@@ -29,9 +29,14 @@ import org.flightgear.clgen.ast.conditions.Condition;
  */
 public class State implements Visitable {
 
-    private final String name;
+    private String name;
     private final List<AbstractBinding> bindings = new ArrayList<>();
     private Condition condition;
+
+    /**
+     * Constructs a blank state.
+     */
+    public State() {}
 
     /**
      * Constructs a state with the state name.
@@ -49,6 +54,13 @@ public class State implements Visitable {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * @param name the name of the state
+     */
+    public void setName(final String name) {
+        this.name = name;
     }
 
     /**
