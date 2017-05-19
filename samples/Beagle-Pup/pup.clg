@@ -5,13 +5,12 @@
 author("Richard Senior");
 
 #-------------------------------------------------------------------------------
-# Global Aliases
+# Globals
 #-------------------------------------------------------------------------------
 
 AUTO_ACTIVE = "sim/checklists/auto/active";
 CHECKED_BEACON = "sim/checklists/status/beacon";
 CHECKED_NAV = "sim/checklists/status/nav";
-VARIANT = "sim/aero";
 
 #-------------------------------------------------------------------------------
 # Item Definitions
@@ -42,12 +41,13 @@ item("Autopilot") {
     pitch = "autopilot/sperry/pitch-select";
     turn = "autopilot/sperry/turn-select";
     switch = "autopilot/sperry/main-switch";
+    variant = "sim/aero";
     state("CHECK", !active && pitch > 0 && turn == 0) {
         fgcommand("switch-assign", property=switch, value=false);
         fgcommand("property-interpolate", property=turn, value=0, rate=20);
-        if (VARIANT == "pup100")
+        if (variant == "pup100")
             fgcommand("property-interpolate", property=pitch, value=5, rate=2);
-        if (VARIANT == "pup150" || VARIANT == "pup160")
+        if (variant == "pup150" || variant == "pup160")
             fgcommand("property-interpolate", property=pitch, value=6, rate=2);
     }
 }

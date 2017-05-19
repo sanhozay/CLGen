@@ -78,6 +78,8 @@ public class ItemListener extends AbstractListener {
             error(token, "Duplicate definition of item '%s'", item.getName());
         } else
             items.put(item.getName(), item);
+        // Item must be null outside item block to detect global aliases
+        item = null;
     }
 
     @Override

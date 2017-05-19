@@ -31,7 +31,7 @@ ANYCHAR: . ;
 // ----------------------------------------------------------------------------
 
 specification
-    : author? globals items checklists
+    : author? items checklists
     ;
 
 author
@@ -41,14 +41,10 @@ author
     }
     ;
 
-globals
-    : /* empty */
-    | declaration globals
-    ;
-
 items
     : /* empty */
     | item items
+    | declaration items
     ;
 
 item

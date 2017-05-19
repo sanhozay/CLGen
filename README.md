@@ -248,8 +248,12 @@ holder.
     author("Richard Senior");
 
 Therafter, global aliases and item definitions must come before checklist 
-definitions. Globals should only be used for aliases that are used across
-multiple items and it is recommended that upper case is used for their names. 
+definitions.
+
+Globals can appear anywhere outside an item definition and must be defined
+before they are used. It usually makes sense to define globals near the top of
+the file, after the author declaration but before any item declarations. Use
+of upper case for global names is recommended, but not mandatory.
 
     AUTO = "sim/checklists/auto/active";
 
@@ -297,8 +301,8 @@ must be letters, numbers, underscore or hyphens. These are valid identifiers:
 
 Redefinition of an alias within an item is not allowed.
 
-Global aliases can be used in any item and must be declared immediately
-before the first item, after the author definition.
+Global aliases are alias definitions defined outside the scope of an item.
+They can be used in any item but must be defined before use.
 
 ### Types
 
