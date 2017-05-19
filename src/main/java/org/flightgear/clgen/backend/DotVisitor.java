@@ -68,7 +68,7 @@ public class DotVisitor extends AbstractVisitor {
     @Override
     public void exit(final AbstractSyntaxTree ast) {
         dot.append("    node [color=\"#404040\",fontcolor=\"#404040\",fontname=\"helvetica\"];\n")
-            .append("    node [shape=note,width=2.25,style=\"\"];\n");
+            .append("    node [shape=record,width=2.25,style=\"\"];\n");
 
         dot.append(nodes.toString());
         dot.append(edges.toString());
@@ -108,12 +108,12 @@ public class DotVisitor extends AbstractVisitor {
     @Override
     public void enter(final Check check) {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("    %d [label=\"%s %s",
-            index++, check.getItem().getName(), check.getState().getName()
+        sb.append(String.format("    %d [label=\"{%s",
+            index++, check.getItem().getName()
         ));
         for (String value : check.getAdditionalValues())
             sb.append("&#92;n" + value.replaceAll("[\"]", "\\\\\""));
-        sb.append("\"];\n");
+        sb.append(String.format("|%s}\"];\n", check.getState().getName()));
         nodes.append(sb.toString());
     }
 
