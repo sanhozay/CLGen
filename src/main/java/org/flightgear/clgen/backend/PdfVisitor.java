@@ -132,6 +132,10 @@ public class PdfVisitor extends AbstractVisitor {
     }
 
     private String dots(final String pre, final String post, int width) {
+        // Empty checks may be used as subtitles or spacers, in which
+        // case no dots are required
+        if (pre.trim().length() == 0 || post.trim().length() == 0)
+            return "";
         width -= pre.length();
         width -= post.length();
         StringBuilder sb = new StringBuilder();
