@@ -24,6 +24,7 @@ import org.flightgear.clgen.GeneratorException;
 import org.flightgear.clgen.ast.AbstractSyntaxTree;
 import org.flightgear.clgen.ast.Check;
 import org.flightgear.clgen.ast.Checklist;
+import org.flightgear.clgen.ast.Page;
 
 /**
  * Creates a Graphviz DOT representation of the checklists.
@@ -91,10 +92,11 @@ public class DotVisitor extends AbstractVisitor {
         );
         dot.append(s);
         edges.append("    " + quote(checklist.getTitle()));
-        int totalChecks = checklist.getPages()
-            .parallelStream()
-            .mapToInt(page -> page.getChecks().size())
-            .sum();
+        int totalChecks = 0;
+        for (Page page : checklist.getPages())
+            for (Check check : page.getChecks())
+                if (!check.isSpacer())
+                    ++totalChecks;
         for (int i = 0; i < totalChecks; ++i)
             edges.append(" -> ").append(index + i);
         edges.append(";\n");
@@ -107,13 +109,23 @@ public class DotVisitor extends AbstractVisitor {
 
     @Override
     public void enter(final Check check) {
+        if (check.isSpacer())
+            return;
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("    %d [label=\"{%s",
-            index++, check.getItem().getName()
-        ));
-        for (String value : check.getAdditionalValues())
-            sb.append("&#92;n" + value.replaceAll("[\"]", "\\\\\""));
-        sb.append(String.format("|%s}\"];\n", check.getState().getName()));
+        if (check.isSubtitle()) {
+            sb.append("    node [shape=box,style=rounded];\n");
+            sb.append(String.format("    %d [label=\"%s\"];\n",
+                index++, check.getItem().getName()
+            ));
+            sb.append("    node [shape=record,style=\"\"];\n");
+        } else {
+            sb.append(String.format("    %d [label=\"{%s",
+                index++, check.getItem().getName()
+            ));
+            for (String value : check.getAdditionalValues())
+                sb.append("&#92;n" + value.replaceAll("[\"]", "\\\\\""));
+            sb.append(String.format("|%s}\"];\n", check.getState().getName()));
+        }
         nodes.append(sb.toString());
     }
 

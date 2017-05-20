@@ -43,6 +43,26 @@ public class Check implements Visitable {
     }
 
     /**
+     * Checks with an item but no value are often used by Flightgear checklists
+     * as subtitles in the checklist dialog.
+     *
+     * @return true if this item is being used as a dummy subtitle
+     */
+    public boolean isSubtitle() {
+        return state.getName().trim().length() == 0;
+    }
+
+    /**
+     * Checks with an empty item and value are sometimes used in Flightgear checklists
+     * as spacer lines in the checklist dialog.
+     *
+     * @return true if this item is being used as a spacer
+     */
+    public boolean isSpacer() {
+        return item.getName().trim().length() == 0;
+    }
+
+    /**
      * Gets the item associated with this check.
      * <p>
      * The item provides the title of the check in the Flightgear dialog.
