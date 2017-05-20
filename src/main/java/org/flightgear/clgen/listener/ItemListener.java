@@ -255,7 +255,8 @@ public class ItemListener extends AbstractListener {
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
         try {
-            symbol.setType(Type.INT);
+            if (symbol != null)
+                symbol.setType(Type.INT);
         } catch (TypeException e) {
             Token token = (Token)ctx.getChild(1).getPayload();
             warning(token, e.getMessage());
@@ -270,7 +271,8 @@ public class ItemListener extends AbstractListener {
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
         try {
-            symbol.setType(Type.DOUBLE);
+            if (symbol != null)
+                symbol.setType(Type.DOUBLE);
         } catch (TypeException e) {
             Token token = (Token)ctx.getChild(1).getPayload();
             warning(token, e.getMessage());
@@ -285,7 +287,8 @@ public class ItemListener extends AbstractListener {
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
         try {
-            symbol.setType(Type.BOOL);
+            if (symbol != null)
+                symbol.setType(Type.BOOL);
         } catch (TypeException e) {
             Token token = (Token)ctx.getChild(1).getPayload();
             warning(token, e.getMessage());
@@ -300,7 +303,8 @@ public class ItemListener extends AbstractListener {
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
         try {
-            symbol.setType(Type.STRING);
+            if (symbol != null)
+                symbol.setType(Type.STRING);
         } catch (TypeException e) {
             Token token = (Token)ctx.getChild(1).getPayload();
             warning(token, e.getMessage());
@@ -316,7 +320,8 @@ public class ItemListener extends AbstractListener {
         state.addBinding(binding);
         if (rval.getType() != Type.NULL)
             try {
-                lval.setType(rval.getType());
+                if (lval != null && rval != null)
+                    lval.setType(rval.getType());
             } catch (TypeException e) {
                 Token token = (Token)ctx.getChild(1).getPayload();
                 warning(token, e.getMessage());
