@@ -151,13 +151,6 @@ public class XmlVisitor extends AbstractVisitor {
         elements.pop();
         assert elements.isEmpty();
         XmlPostProcessor xpp = new XmlPostProcessor();
-        xpp.addBreakPatterns(
-            "<PropertyList>",
-            "</item>",
-            "</title>",
-            "<page>",
-            "</page>"
-        );
         write(document, filename(checklist), xpp);
     }
 
@@ -178,13 +171,6 @@ public class XmlVisitor extends AbstractVisitor {
 
     @Override
     public void enter(final Check check) {
-        String comment = String.format(" %s: %s ",
-            check.getItem().getName(),
-            check.getState().getName()
-        );
-        Comment c = document.createComment(comment);
-        elements.peek().appendChild(c);
-
         Element e = document.createElement("item");
         appendText(e, "name", check.getItem().getName());
         appendText(e, "value", check.getState().getName());
