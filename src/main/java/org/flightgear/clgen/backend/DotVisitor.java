@@ -115,18 +115,30 @@ public class DotVisitor extends AbstractVisitor {
         if (check.isSubtitle()) {
             sb.append("    node [shape=box,style=rounded];\n");
             sb.append(String.format("    %d [label=\"%s\"];\n",
-                index++, check.getItem().getName()
+                index++, escape(check.getItem().getName())
             ));
             sb.append("    node [shape=record,style=\"\"];\n");
         } else {
             sb.append(String.format("    %d [label=\"{%s",
-                index++, check.getItem().getName()
+                index++, escape(check.getItem().getName())
             ));
             for (String value : check.getAdditionalValues())
-                sb.append("&#92;n" + value.replaceAll("[\"]", "\\\\\""));
-            sb.append(String.format("|%s}\"];\n", check.getState().getName()));
+                sb.append("&#92;n" + escape(value));
+            sb.append(String.format("|%s}\"];\n",
+                escape(check.getState().getName())
+            ));
         }
         nodes.append(sb.toString());
+    }
+
+    private String escape(final String s) {
+        return s
+            .replaceAll("[\"]", "\\\\\"")
+            .replace("|", "\\|")
+            .replace("<", "\\<")
+            .replace(">", "\\>")
+            .replace("{", "\\{")
+            .replace("}", "\\}");
     }
 
     private String quote(final String s) {
