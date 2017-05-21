@@ -4,6 +4,10 @@ CLGen is a tool for generating Flightgear checklists. Input is in the form of a
 domain-specific language (DSL) that describes checklist items and lists. This
 program parses the DSL and generates XML files that can be used in Flightgear.
 
+CLGen also provides rudimentary support for reverse-engineering existing
+checklist definition files into CLGen source and generating PDF and DOT
+summaries of existing checklists.
+
 ## Background
 
 Flightgear checklists are defined in XML files. A typical checklist items looks
@@ -122,10 +126,39 @@ Existing files are overwritten without confirmation. Be careful about
 generating checklist files directly into your aircraft source directory if you
 have existing checklists.
 
+### Reverse-Engineering Checklists
+
+To reverse-engineer an existing checklist into CLG format, simply pass the name
+of the checklist XML file as the argument to CLGen. If the file extension is
+`.xml` it will reverse-engineer, otherwise it will treat the file as CLG source.
+
+    $ clgen myprojectdirectory/checklists.xml
+
+The XML file can be a single checklist XML file, containing `<checklist>`
+elements, or it can be a wrapper XML with included checklists like this one:
+
+    <PropertyList>
+      <checklist include="before-starting-engines.xml"/>
+      <checklist include="start-engines.xml"/>
+    </PropertyList>
+
+The included files are followed by CLGen and must be in the relative paths
+specified in the include attribute.
+
+The products of reverse-engineering are:
+
+ * `checklists.clg` - can be used as the basis for further maintenance
+ * `checklists.pdf` - shows roughly how the checklist will look in Flightgear
+ * `checklists.dot` - provides an overview of the checklists
+
+ Note that conditions and bindings are not currently parsed from the XML and do
+ not appear in the generated CLG file. Be careful when reverse-engineering that
+ you do not overwrite CLG files that you have been working on.
+
 ## Compiling the Program
 
 Compiling from source is only necessary if you are interested in looking at or
-changing the source code.
+changing the source code or using the development version.
 
 ### Prequisites
 
