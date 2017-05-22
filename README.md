@@ -10,7 +10,7 @@ summaries of existing checklists.
 
 ## Background
 
-Flightgear checklists are defined in XML files. A typical checklist items looks
+Flightgear checklists are defined in XML files. A typical checklist looks
 something like this:
 
     <!-- Landing Lights OFF -->
@@ -74,6 +74,9 @@ variables, and provide a shorthand for referring to a property.
 Looking at the `OFF` state in more detail, the condition is that the output
 volts are less than or equal 6.0 and the binding to satisfy the `OFF` state is
 to assign zero to the switch property.
+
+For quick prototyping of simple checklists, items are optional but they are
+required to define interactive checklists with conditions and bindings.
 
 ### b. Checklists
 
@@ -271,7 +274,8 @@ versions of keywords can be used as aliases.
 `item`  
 `marker`  
 `project`  
-`state`  
+`state` 
+`text`   
 
 ### Overall Structure
 
@@ -322,6 +326,11 @@ Items are introduced with the `item` keyword.
     }
 
 The item title appears in the checklist dialog.
+
+When prototyping checklists, items are optional, but as soon as the first
+item is defined, CLGen expects all checklist checks to be defined using
+items. Reverse engineering a checklists XML file is a quick way to add
+items in preparation for defining conditions and bindings.
 
 ### Aliases
 

@@ -87,21 +87,25 @@ public class ChecklistListener extends AbstractListener {
     public void enterNormalCheck(final CLGenParser.NormalCheckContext ctx) {
         String n = unquote(ctx.getChild(2).getText());
         String s = unquote(ctx.getChild(4).getText());
-        Item item = items.get(n);
-        if (item == null) {
-            Token token = (Token)ctx.getChild(2).getPayload();
-            error(token, "Undefined item '%s' in checklist '%s'", n, checklist.getTitle());
-            return;
-        }
-        State state = item.getStates().get(s);
-        if (state == null) {
-            Token token = (Token)ctx.getChild(4).getPayload();
-            error(token, "State '%s' is not defined for item '%s'", s, n);
-            return;
-        }
-        Check check = new Check(item, state);
-        for (int i = 6; i < ctx.getChildCount() - 2; i += 2)
-            check.addAdditionalValue(unquote(ctx.getChild(i).getText()));
+        Check check = null;
+        if (items.size() > 0) {
+            Item item = items.get(n);
+            if (item == null) {
+                Token token = (Token)ctx.getChild(2).getPayload();
+                error(token, "Undefined item '%s' in checklist '%s'", n, checklist.getTitle());
+                return;
+            }
+            State state = item.getStates().get(s);
+            if (state == null) {
+                Token token = (Token)ctx.getChild(4).getPayload();
+                error(token, "State '%s' is not defined for item '%s'", s, n);
+                return;
+            }
+            check = new Check(item, state);
+            for (int i = 6; i < ctx.getChildCount() - 2; i += 2)
+                check.addAdditionalValue(unquote(ctx.getChild(i).getText()));
+        } else
+            check = new Check(new Item(n), new State(s));
         CheckContainer cc = page != null ? page : checklist;
         cc.addCheck(check);
     }

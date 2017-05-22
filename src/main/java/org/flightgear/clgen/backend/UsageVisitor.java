@@ -40,6 +40,7 @@ public class UsageVisitor extends AbstractVisitor {
     }
 
     private final Map<String, ItemUsage> itemUsages = new TreeMap<>();
+    private final Map<String, Item> items;
     private int warnings = 0;
 
     /**
@@ -48,6 +49,7 @@ public class UsageVisitor extends AbstractVisitor {
      * @param items the items lookup table
      */
     public UsageVisitor(final Map<String, Item> items) {
+        this.items = items;
         for (Entry<String, Item> itemEntry : items.entrySet()) {
             ItemUsage usage = new ItemUsage();
             itemUsages.put(itemEntry.getKey(), usage);
@@ -59,7 +61,7 @@ public class UsageVisitor extends AbstractVisitor {
 
     @Override
     public void enter(final Check check) {
-        if (check.isSpacer() || check.isSubtitle())
+        if (items.size() == 0 || check.isSpacer() || check.isSubtitle())
             return;
         Item item = check.getItem();
         ItemUsage usage = itemUsages.get(item.getName());
