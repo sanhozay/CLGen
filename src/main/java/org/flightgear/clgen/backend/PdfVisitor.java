@@ -46,6 +46,7 @@ public class PdfVisitor extends AbstractVisitor {
     private static final Font H1 = new Font(Font.COURIER, 14.0f, Font.BOLD);
     private static final Font H2 = new Font(Font.COURIER, 12.0f, Font.BOLD);
     private static final Font P = new Font(Font.COURIER, 12.0f, Font.NORMAL);
+    private static final Font B = new Font(Font.COURIER, 12.0f, Font.BOLD);
 
     private static final float MARGIN = 70.0f;
 
@@ -109,7 +110,7 @@ public class PdfVisitor extends AbstractVisitor {
             String i = check.getItem() != null ? nvl(check.getItem().getName()) : "";
             String s = check.getState() != null ? nvl(check.getState().getName()) : "";
             String line = String.format("%s %s %s", i, dots(i, s, textWidth(P) - 2), s);
-            Paragraph p = new Paragraph(line, P);
+            Paragraph p = new Paragraph(line, empty(s) ? B : P);
             p.setSpacingBefore(6.0f);
             document.add(p);
             for (String value : check.getAdditionalValues()) {
