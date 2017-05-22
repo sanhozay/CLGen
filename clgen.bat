@@ -1,2 +1,2 @@
 @echo off
-java -jar %~dp0/build/libs/CLGen-1.1.1.jar %*
+java -jar %~dp0/build/libs/CLGen-1.2.0.jar %*
