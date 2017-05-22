@@ -58,6 +58,11 @@ public class ChecklistListener extends AbstractListener {
     }
 
     @Override
+    public void enterProject(final CLGenParser.ProjectContext ctx) {
+        ast.setProject(unquote(ctx.getChild(2).getText()));
+    }
+
+    @Override
     public void enterAuthor(final CLGenParser.AuthorContext ctx) {
         ast.setAuthor(unquote(ctx.getChild(2).getText()));
     }

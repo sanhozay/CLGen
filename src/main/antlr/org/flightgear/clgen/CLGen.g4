@@ -31,14 +31,31 @@ ANYCHAR: . ;
 // ----------------------------------------------------------------------------
 
 specification
-    : author? items checklists
+    : project? items checklists
     ;
 
-author
-    : 'author' '(' STRING ')' ';'
-    | 'author' '(' STRING ')' {
+project
+    : 'project' '(' STRING ')' projectDefinition
+    ;
+
+projectDefinition
+    : '{' projectElements '}'
+    | projectElement? ';'
+    | projectElement? {
         notifyErrorListeners("Unexpected input, did you forget a ';'?");
     }
+    ;
+
+projectElements
+    : /* empty */
+    | projectElement ';' projectElements
+    | projectElement projectElements {
+        notifyErrorListeners("Unexpected input, did you forget a ';'?");
+    }
+    ;
+
+projectElement
+    : 'author' '(' STRING ')'                               # Author
     ;
 
 items

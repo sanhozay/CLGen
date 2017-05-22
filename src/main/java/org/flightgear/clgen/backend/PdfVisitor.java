@@ -74,7 +74,8 @@ public class PdfVisitor extends AbstractVisitor {
     @Override
     public void enter(final AbstractSyntaxTree ast) {
         try {
-            Paragraph t = new Paragraph("CHECKLIST", H1);
+            String title = ast.getProject() != null ? ast.getProject() : "Checklists";
+            Paragraph t = new Paragraph(title.toUpperCase(), H1);
             t.setSpacingAfter(12.0f);
             t.setAlignment(Element.ALIGN_CENTER);
             document.add(t);

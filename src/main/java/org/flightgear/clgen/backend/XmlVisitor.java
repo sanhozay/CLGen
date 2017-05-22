@@ -105,9 +105,10 @@ public class XmlVisitor extends AbstractVisitor {
 
     @Override
     public void enter(final AbstractSyntaxTree ast) {
+        String title = ast.getProject() != null ? ast.getProject() : "Checklists";
         wrapper = documentBuilder.newDocument();
         license.setAuthor(ast.getAuthor());
-        license.setTitle("Checklists");
+        license.setTitle(title);
         String l = license.getText();
         if (l != null)
             wrapper.appendChild(wrapper.createComment("\n" + l));

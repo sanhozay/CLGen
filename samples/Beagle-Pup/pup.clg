@@ -2,7 +2,9 @@
 # Beagle Pup Checklists
 #-------------------------------------------------------------------------------
 
-author("Richard Senior");
+project("Beagle Pup Checklists") {
+    author("Richard Senior");
+}
 
 #-------------------------------------------------------------------------------
 # Globals

@@ -270,22 +270,30 @@ versions of keywords can be used as aliases.
 `fgcommand`  
 `item`  
 `marker`  
+`project`  
 `state`  
 
 ### Overall Structure
 
-The input file may begin with an author declaration. Adding this automatically
-adds a GPL2 header to the generated XML files with the author as copyright
-holder.
+The input file may begin with a project definition. The title of the project is
+used as a title in PDF, XML and DOT output. Adding an author definition
+automatically adds a GPL2 header to the generated XML files with the author
+as copyright holder.
 
-    author("Richard Senior");
+    project("My Checklists" {
+        author("Richard Senior");
+    }
+
+The project definition can omit the author definition:
+
+    project("My Checklists");
 
 Therafter, global aliases and item definitions must come before checklist 
 definitions.
 
 Globals can appear anywhere outside an item definition and must be defined
 before they are used. It usually makes sense to define globals near the top of
-the file, after the author declaration but before any item declarations. Use
+the file, after the project definition but before any item declarations. Use
 of upper case for global names is recommended, but not mandatory.
 
     AUTO = "sim/checklists/auto/active";

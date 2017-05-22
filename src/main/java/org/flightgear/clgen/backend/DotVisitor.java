@@ -60,16 +60,18 @@ public class DotVisitor extends AbstractVisitor {
         colorCycle = 1.0 / ast.getChecklists().size();
         dot.append("digraph G {\n")
             .append("    pad=0.5;\n")
-            .append("    ranksep=0.35;\n")
-            .append("    node [fontsize=12];\n")
+            .append("    ranksep=0.35;\n");
+        if (ast.getProject() != null)
+            dot.append("    label=\"\\" + "n" + ast.getProject() + "\";\n");
+        dot.append("    node [fontsize=12];\n")
             .append("    node [fontcolor=white,fontname=\"helvetica-bold\"];\n")
-            .append("    node [shape=Mrecord,width=2.5,style=filled];\n");
+            .append("    node [shape=Mrecord,width=2.75,style=filled];\n");
     }
 
     @Override
     public void exit(final AbstractSyntaxTree ast) {
         dot.append("    node [color=\"#404040\",fontcolor=\"#404040\",fontname=\"helvetica\"];\n")
-            .append("    node [shape=record,width=2.25,style=\"\"];\n");
+            .append("    node [shape=record,width=2.5,style=\"\"];\n");
 
         dot.append(nodes.toString());
         dot.append(edges.toString());

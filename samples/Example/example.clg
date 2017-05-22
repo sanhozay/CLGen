@@ -2,10 +2,12 @@
 # CLGen Example
 #------------------------------------------------------------------------------
 
-# When an author is defined, a GPL2 copyright notice is entered
-# at the top of the file.
+# The project definition provides a title for XML, DOT and PDF outputs.
+# Defining an author adds a GPL2 copyright notice at the top of each file.
 #
-author("Flightgear");
+project("Example Checklists") {
+    author("Flightgear");
+}
 
 #------------------------------------------------------------------------------
 # Items
