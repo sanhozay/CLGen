@@ -172,10 +172,15 @@ public class XmlVisitor extends AbstractVisitor {
     @Override
     public void enter(final Check check) {
         Element e = document.createElement("item");
-        appendText(e, "name", check.getItem().getName());
-        appendText(e, "value", check.getState().getName());
-        for (String additionalValue : check.getAdditionalValues())
-            appendText(e, "value", additionalValue);
+        if (check.getItem() != null) {
+            appendText(e, "name", check.getItem().getName());
+            if (check.getState() != null) {
+                appendText(e, "value", check.getState().getName());
+                for (String additionalValue : check.getAdditionalValues())
+                    appendText(e, "value", additionalValue);
+            }
+        } else // Spacer
+            appendText(e, "name", "");
         elements.peek().appendChild(e);
         elements.push(e);
     }
@@ -203,7 +208,7 @@ public class XmlVisitor extends AbstractVisitor {
          * To optimize the XML output, operator elements are only pushed onto the
          * stack if the parent condition differs from the current condition. This
          * simplifies conditional structures based on parse trees built from
-         * expressions like a && b&& c -> ((a && b) && c)
+         * expressions like a && b && c -> ((a && b) && c)
          */
         if (!nestedCondition(condition)) {
             Element e = document.createElement(operatorTag(condition.getOperator()));

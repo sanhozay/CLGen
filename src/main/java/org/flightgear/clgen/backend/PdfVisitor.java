@@ -106,8 +106,8 @@ public class PdfVisitor extends AbstractVisitor {
     @Override
     public void enter(final Check check) {
         try {
-            String i = nvl(check.getItem().getName());
-            String s = nvl(check.getState().getName());
+            String i = check.getItem() != null ? nvl(check.getItem().getName()) : "";
+            String s = check.getState() != null ? nvl(check.getState().getName()) : "";
             String line = String.format("%s %s %s", i, dots(i, s, textWidth(P) - 2), s);
             Paragraph p = new Paragraph(line, P);
             p.setSpacingBefore(6.0f);

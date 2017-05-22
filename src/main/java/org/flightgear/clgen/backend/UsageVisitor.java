@@ -59,6 +59,8 @@ public class UsageVisitor extends AbstractVisitor {
 
     @Override
     public void enter(final Check check) {
+        if (check.isSpacer() || check.isSubtitle())
+            return;
         Item item = check.getItem();
         ItemUsage usage = itemUsages.get(item.getName());
         ++usage.count;

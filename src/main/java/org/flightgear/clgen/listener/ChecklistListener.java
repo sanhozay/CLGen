@@ -84,7 +84,7 @@ public class ChecklistListener extends AbstractListener {
     }
 
     @Override
-    public void enterCheck(final CLGenParser.CheckContext ctx) {
+    public void enterNormalCheck(final CLGenParser.NormalCheckContext ctx) {
         String n = unquote(ctx.getChild(2).getText());
         String s = unquote(ctx.getChild(4).getText());
         Item item = items.get(n);
@@ -104,6 +104,19 @@ public class ChecklistListener extends AbstractListener {
             check.addAdditionalValue(unquote(ctx.getChild(i).getText()));
         CheckContainer cc = page != null ? page : checklist;
         cc.addCheck(check);
+    }
+
+    @Override
+    public void enterSpacer(final CLGenParser.SpacerContext ctx) {
+        CheckContainer cc = page != null ? page : checklist;
+        cc.addCheck(new Check());
+    }
+
+    @Override
+    public void enterSubtitle(final CLGenParser.SubtitleContext ctx) {
+        String subtitle = unquote(ctx.getChild(2).getText());
+        CheckContainer cc = page != null ? page : checklist;
+        cc.addCheck(new Check(subtitle));
     }
 
     @Override

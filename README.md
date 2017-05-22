@@ -478,3 +478,12 @@ Checks can also include additional values. These are displayed in the Flightgear
 checklist dialog as additional lines below the state name.
 
     check("Suction", "OK", "(minimum 3 inches)");
+    
+To create blank lines and subtitles, a checklist can include text elements.
+There is no need to create dummy items.
+
+    text();
+    text("This is a subtitle:");
+
+These can be used to enhance the formatting of the Flightgear checklist
+dialog and are handled by CLGen's PDF and DOT output formats.

@@ -208,8 +208,10 @@ page
     ;
 
 check
-    : 'check' '(' STRING ',' STRING (',' STRING)* ')' ';'
+    : 'text' '(' ')' ';'                                    # Spacer
+    | 'text' '(' STRING ')' ';'                             # Subtitle
+    | 'check' '(' STRING ',' STRING (',' STRING)* ')' ';'   # NormalCheck
     | 'check' '(' STRING ',' STRING (',' STRING)* ')' {
         notifyErrorListeners("Unexpected input, did you forget a ';'?");
-    }
+    }                                                       # Error
     ;

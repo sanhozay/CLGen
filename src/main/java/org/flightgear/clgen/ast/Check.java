@@ -26,10 +26,24 @@ import java.util.List;
  */
 public class Check implements Visitable {
 
-    private final Item item;
-    private final State state;
+    private Item item;
+    private State state;
 
     private final List<String> additionalValues = new ArrayList<>();
+
+    /**
+     * Constructs a blank check (used for spacers).
+     */
+    public Check() {}
+
+    /**
+     * Constructs a check with an item only (used for subtitles).
+     *
+     * @param subtitle the subtitle
+     */
+    public Check(final String subtitle) {
+        this(new Item(subtitle), null);
+    }
 
     /**
      * Constructs a check with an item and state.
@@ -62,7 +76,7 @@ public class Check implements Visitable {
      */
     public boolean isSpacer() {
         return item == null ||
-            item.getName() == null |
+            item.getName() == null ||
             item.getName().trim().length() == 0;
     }
 
@@ -120,8 +134,10 @@ public class Check implements Visitable {
     @Override
     public void accept(final Visitor visitor) {
         visitor.enter(this);
-        item.accept(visitor);
-        state.accept(visitor);
+        if (item != null)
+            item.accept(visitor);
+        if (state != null)
+            state.accept(visitor);
         visitor.exit(this);
     }
 
