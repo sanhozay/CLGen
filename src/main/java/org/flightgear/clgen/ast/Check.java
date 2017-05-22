@@ -26,14 +26,58 @@ import java.util.List;
  */
 public class Check implements Visitable {
 
-    private final Item item;
-    private final State state;
+    private Item item;
+    private State state;
 
     private final List<String> additionalValues = new ArrayList<>();
 
+    /**
+     * Constructs a blank check (used for spacers).
+     */
+    public Check() {}
+
+    /**
+     * Constructs a check with an item only (used for subtitles).
+     *
+     * @param subtitle the subtitle
+     */
+    public Check(final String subtitle) {
+        this(new Item(subtitle), null);
+    }
+
+    /**
+     * Constructs a check with an item and state.
+     *
+     * @param item the item
+     * @param state the state
+     */
     public Check(final Item item, final State state) {
         this.item = item;
         this.state = state;
+    }
+
+    /**
+     * Checks with an item but no value are often used by Flightgear checklists
+     * as subtitles in the checklist dialog.
+     *
+     * @return true if this item is being used as a dummy subtitle
+     */
+    public boolean isSubtitle() {
+        return state == null ||
+            state.getName() == null ||
+            state.getName().trim().length() == 0;
+    }
+
+    /**
+     * Checks with an empty item and value are sometimes used in Flightgear checklists
+     * as spacer lines in the checklist dialog.
+     *
+     * @return true if this item is being used as a spacer
+     */
+    public boolean isSpacer() {
+        return item == null ||
+            item.getName() == null ||
+            item.getName().trim().length() == 0;
     }
 
     /**
@@ -90,8 +134,10 @@ public class Check implements Visitable {
     @Override
     public void accept(final Visitor visitor) {
         visitor.enter(this);
-        item.accept(visitor);
-        state.accept(visitor);
+        if (item != null)
+            item.accept(visitor);
+        if (state != null)
+            state.accept(visitor);
         visitor.exit(this);
     }
 

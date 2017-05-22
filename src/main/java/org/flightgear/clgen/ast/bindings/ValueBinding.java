@@ -29,15 +29,27 @@ public class ValueBinding extends AbstractBinding {
     protected final Symbol symbol;
     protected Object value = null;
 
+    /**
+     * Constructs a value binding with a symbol and value.
+     *
+     * @param symbol the symbol
+     * @param value the value
+     */
     public ValueBinding(final Symbol symbol, final Object value) {
         this.symbol = symbol;
         this.value = value;
     }
 
+    /**
+     * @return the symbol
+     */
     public Symbol getSymbol() {
         return symbol;
     }
 
+    /**
+     * @return the value
+     */
     public Object getValue() {
         return value;
     }

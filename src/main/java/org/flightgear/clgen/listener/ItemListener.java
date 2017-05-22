@@ -78,6 +78,8 @@ public class ItemListener extends AbstractListener {
             error(token, "Duplicate definition of item '%s'", item.getName());
         } else
             items.put(item.getName(), item);
+        // Item must be null outside item block to detect global aliases
+        item = null;
     }
 
     @Override
@@ -85,7 +87,8 @@ public class ItemListener extends AbstractListener {
         String key = ctx.getChild(0).getText();
         String value = unquote(ctx.getChild(2).getText());
         try {
-            symbolTable.add(item.getName(), new Symbol(key, value));
+            String scope = item == null ? SymbolTable.GLOBAL : item.getName();
+            symbolTable.add(scope, new Symbol(key, value));
         } catch (DuplicateSymbolException e) {
             Token token = (Token)ctx.getChild(0).getPayload();
             error(token, "Alias '%s' is already defined in item '%s'",
@@ -252,7 +255,8 @@ public class ItemListener extends AbstractListener {
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
         try {
-            symbol.setType(Type.INT);
+            if (symbol != null)
+                symbol.setType(Type.INT);
         } catch (TypeException e) {
             Token token = (Token)ctx.getChild(1).getPayload();
             warning(token, e.getMessage());
@@ -267,7 +271,8 @@ public class ItemListener extends AbstractListener {
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
         try {
-            symbol.setType(Type.DOUBLE);
+            if (symbol != null)
+                symbol.setType(Type.DOUBLE);
         } catch (TypeException e) {
             Token token = (Token)ctx.getChild(1).getPayload();
             warning(token, e.getMessage());
@@ -282,7 +287,8 @@ public class ItemListener extends AbstractListener {
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
         try {
-            symbol.setType(Type.BOOL);
+            if (symbol != null)
+                symbol.setType(Type.BOOL);
         } catch (TypeException e) {
             Token token = (Token)ctx.getChild(1).getPayload();
             warning(token, e.getMessage());
@@ -297,7 +303,8 @@ public class ItemListener extends AbstractListener {
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
         try {
-            symbol.setType(Type.STRING);
+            if (symbol != null)
+                symbol.setType(Type.STRING);
         } catch (TypeException e) {
             Token token = (Token)ctx.getChild(1).getPayload();
             warning(token, e.getMessage());
@@ -313,7 +320,8 @@ public class ItemListener extends AbstractListener {
         state.addBinding(binding);
         if (rval.getType() != Type.NULL)
             try {
-                lval.setType(rval.getType());
+                if (lval != null && rval != null)
+                    lval.setType(rval.getType());
             } catch (TypeException e) {
                 Token token = (Token)ctx.getChild(1).getPayload();
                 warning(token, e.getMessage());
@@ -390,6 +398,11 @@ public class ItemListener extends AbstractListener {
 
     // Accessors
 
+    /**
+     * Gets the lookup table of items built by this listener.
+     *
+     * @return the item lookup table
+     */
     public Map<String, Item> getItems() {
         return items;
     }

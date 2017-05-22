@@ -46,12 +46,18 @@ public class PdfVisitor extends AbstractVisitor {
     private static final Font H1 = new Font(Font.COURIER, 14.0f, Font.BOLD);
     private static final Font H2 = new Font(Font.COURIER, 12.0f, Font.BOLD);
     private static final Font P = new Font(Font.COURIER, 12.0f, Font.NORMAL);
+    private static final Font B = new Font(Font.COURIER, 12.0f, Font.BOLD);
 
     private static final float MARGIN = 70.0f;
 
     private final Path filename;
     private final Document document = new Document();
 
+    /**
+     * Constructs a PDF visitor with the path to the output directory.
+     *
+     * @param outputDir the output directory
+     */
     public PdfVisitor(final Path outputDir) {
         try {
             document.setMargins(MARGIN, MARGIN, MARGIN, MARGIN);
@@ -69,7 +75,8 @@ public class PdfVisitor extends AbstractVisitor {
     @Override
     public void enter(final AbstractSyntaxTree ast) {
         try {
-            Paragraph t = new Paragraph("CHECKLIST", H1);
+            String title = ast.getProject() != null ? ast.getProject() : "Checklists";
+            Paragraph t = new Paragraph(title.toUpperCase(), H1);
             t.setSpacingAfter(12.0f);
             t.setAlignment(Element.ALIGN_CENTER);
             document.add(t);
@@ -100,10 +107,10 @@ public class PdfVisitor extends AbstractVisitor {
     @Override
     public void enter(final Check check) {
         try {
-            String i = check.getItem().getName();
-            String s = check.getState().getName();
+            String i = check.getItem() != null ? nvl(check.getItem().getName()) : "";
+            String s = check.getState() != null ? nvl(check.getState().getName()) : "";
             String line = String.format("%s %s %s", i, dots(i, s, textWidth(P) - 2), s);
-            Paragraph p = new Paragraph(line, P);
+            Paragraph p = new Paragraph(line, empty(s) ? B : P);
             p.setSpacingBefore(6.0f);
             document.add(p);
             for (String value : check.getAdditionalValues()) {
@@ -127,12 +134,24 @@ public class PdfVisitor extends AbstractVisitor {
     }
 
     private String dots(final String pre, final String post, int width) {
+        // Empty checks may be used as subtitles or spacers, in which
+        // case no dots are required
+        if (empty(pre) || empty(post))
+            return "";
         width -= pre.length();
         width -= post.length();
         StringBuilder sb = new StringBuilder();
         while (width-- > 0)
             sb.append('.');
         return sb.toString();
+    }
+
+    private boolean empty(final String s) {
+        return s == null || s.trim().length() == 0;
+    }
+
+    private String nvl(final String s) {
+        return s != null ? s : "";
     }
 
     // Page Event Helper

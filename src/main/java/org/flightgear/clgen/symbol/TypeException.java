@@ -24,6 +24,11 @@ package org.flightgear.clgen.symbol;
 @SuppressWarnings("serial")
 public class TypeException extends Exception {
 
+    /**
+     * Construct a type exception with a message.
+     *
+     * @param message the message
+     */
     public TypeException(final String message) {
         super(message);
     }

@@ -21,6 +21,7 @@ package org.flightgear.clgen.symbol;
  *
  * @author Richard Senior
  */
+@SuppressWarnings("javadoc")
 public enum Type {
 
     NULL, INT, DOUBLE, BOOL, STRING;

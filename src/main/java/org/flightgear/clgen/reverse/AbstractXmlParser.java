@@ -14,36 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.flightgear.clgen.ast.bindings;
+package org.flightgear.clgen.reverse;
 
-import org.flightgear.clgen.ast.Visitable;
-import org.flightgear.clgen.ast.conditions.Condition;
+import java.nio.file.Path;
 
 /**
- * Abstract binding, parent of various binding types
+ * Abstract XML parser.
  *
  * @author Richard Senior
  */
-public abstract class AbstractBinding implements Visitable {
-
-    protected Condition condition;
+public abstract class AbstractXmlParser {
 
     /**
-     * Gets the condition applicable to the binding.
+     * Parses an XML file with the given path.
      *
-     * @return the binding condition (may be null)
+     * @param path the path
      */
-    public Condition getCondition() {
-        return condition;
-    }
-
-    /**
-     * Sets the condition applicable to the binding.
-     *
-     * @param condition the condition
-     */
-    public void setCondition(final Condition condition) {
-        this.condition = condition;
-    }
+     abstract void parse(final Path path);
 
 }

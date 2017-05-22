@@ -2,10 +2,12 @@
 # CLGen Example
 #------------------------------------------------------------------------------
 
-# When an author is defined, a GPL2 copyright notice is entered
-# at the top of the file.
+# The project definition provides a title for XML, DOT and PDF outputs.
+# Defining an author adds a GPL2 copyright notice at the top of each file.
 #
-author("Flightgear");
+project("Example Checklists") {
+    author("Flightgear");
+}
 
 #------------------------------------------------------------------------------
 # Items
@@ -90,6 +92,7 @@ item("Propeller") {
 checklist("Example") {
     check("Parking Brake", "SET");
     check("Beacon", "OFF");
+    text("Subtitle"); # Subtitle within a checklist
     check("Engines", "STOPPED");
     check("Mixture", "CUTOFF");
     check("Elevator Trim", "TAKEOFF");
@@ -101,6 +104,7 @@ checklist("Paged") {
     page {
         check("Parking Brake", "SET");
         check("Beacon", "ON");
+        text(); # Spacer line
         check("Mixture", "FULL RICH");
         check("Propeller", "CLEAR", "(use the walker to check)");
     }

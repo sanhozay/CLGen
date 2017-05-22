@@ -27,8 +27,18 @@ import java.util.List;
 public class Checklist implements Visitable, CheckContainer {
 
     private final List<Page> pages = new ArrayList<>();
-    private final String title;
+    private String title;
 
+    /**
+     * Constructs a blank checklist.
+     */
+    public Checklist() {}
+
+    /**
+     * Constructs a checklist with a title.
+     *
+     * @param title the title
+     */
     public Checklist(final String title) {
         this.title = title;
     }
@@ -43,6 +53,13 @@ public class Checklist implements Visitable, CheckContainer {
      */
     public String getTitle() {
         return title;
+    }
+
+    /**
+     * @param title the title
+     */
+    public void setTitle(final String title) {
+        this.title = title;
     }
 
     /**
@@ -93,8 +110,7 @@ public class Checklist implements Visitable, CheckContainer {
      */
     @Override
     public List<Check> getChecks() {
-        assert pages.size() == 1;
-        return pages.get(0).getChecks();
+        return pages.size() == 0 ? new ArrayList<>() : pages.get(0).getChecks();
     }
 
     /**

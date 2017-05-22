@@ -27,7 +27,27 @@ import java.util.List;
 public class AbstractSyntaxTree implements Visitable {
 
     private String author;
+    private String project;
+
     private final List<Checklist> checklists = new ArrayList<>();
+
+    /**
+     * Gets the name of the project.
+     *
+     * @return the project name
+     */
+    public String getProject() {
+        return project;
+    }
+
+    /**
+     * Sets the project name.
+     *
+     * @param project the project name
+     */
+    public void setProject(final String project) {
+        this.project = project;
+    }
 
     /**
      * Gets the author of the checklists.

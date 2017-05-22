@@ -32,6 +32,7 @@ import org.flightgear.clgen.backend.AbstractVisitor;
  *
  * @author Richard Senior
  */
+@SuppressWarnings("javadoc")
 public interface Visitor {
 
     void enter(final AbstractSyntaxTree ast);

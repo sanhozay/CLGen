@@ -28,10 +28,20 @@ public class Terminal extends AbstractCondition {
 
     private final Object value;
 
+    /**
+     * Constructs a terminal with a value.
+     * <p>
+     * The type of the value determines the type of the terminal.
+     *
+     * @param value the value of the terminal
+     */
     public Terminal(final Object value) {
         this.value = value;
     }
 
+    /**
+     * @return the value
+     */
     public Object getValue() {
         return value;
     }

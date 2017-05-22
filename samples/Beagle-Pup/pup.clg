@@ -2,7 +2,17 @@
 # Beagle Pup Checklists
 #-------------------------------------------------------------------------------
 
-author("Richard Senior");
+project("Beagle Pup Checklists") {
+    author("Richard Senior");
+}
+
+#-------------------------------------------------------------------------------
+# Globals
+#-------------------------------------------------------------------------------
+
+AUTO_ACTIVE = "sim/checklists/auto/active";
+CHECKED_BEACON = "sim/checklists/status/beacon";
+CHECKED_NAV = "sim/checklists/status/nav";
 
 #-------------------------------------------------------------------------------
 # Item Definitions
@@ -24,9 +34,8 @@ item("Alternator Warning") {
 }
 
 item("Altimeter") {
-    auto = "sim/checklists/auto/active";
     error = "instrumentation/altimeter/absolute-altitude-error-ft";
-    state("SET", auto || error < 50) fgcommand("set-altimeter-qnh");
+    state("SET", AUTO_ACTIVE || error < 50) fgcommand("set-altimeter-qnh");
 }
 
 item("Autopilot") {
@@ -48,14 +57,13 @@ item("Autopilot") {
 item("Beacon") {
     volts = "systems/electrical/outputs/beacon";
     breaker = "controls/switches/circuit-breakers/beacon";
-    beaconChecked = "sim/checklists/status/beacon";
     state("OFF", volts == 0) {
         fgcommand("switch-assign", property=breaker, value=false);
     }
     state("ON", volts > 0) {
         fgcommand("switch-assign", property=breaker, value=true);
     }
-    state("CHECK & OFF", volts == 0 && beaconChecked) {
+    state("CHECK & OFF", volts == 0 && CHECKED_BEACON) {
         fgcommand("switch-assign", property=breaker, value=true);
         fgcommand("switch-assign", property=breaker, value=false);
     }
@@ -148,9 +156,8 @@ item("Fuel Tank Selector") {
 }
 
 item("Heading Indicator") {
-    auto = "sim/checklists/auto/active";
     error = "instrumentation/heading-indicator/absolute-heading-error-deg";
-    state("ALIGN", auto || error < 5) fgcommand("align-heading-indicator");
+    state("ALIGN", AUTO_ACTIVE || error < 5) fgcommand("align-heading-indicator");
 }
 
 item("Landing Light") {
@@ -174,9 +181,7 @@ item("Main Battery") {
     state("ON", volts > 0) {
         fgcommand("switch-assign", property=batterySwitch, value=true);
     }
-    navChecked = "sim/checklists/status/nav-lights";
-    beaconChecked = "sim/checklists/status/beacon";
-    state("CHECK", volts > 0 || navChecked && beaconChecked) {
+    state("CHECK", volts > 0 || CHECKED_NAV && CHECKED_BEACON) {
         fgcommand("switch-assign", property=batterySwitch, value=true);
     }
 }
@@ -197,8 +202,7 @@ item("Navigation Lights") {
     state("ON", volts > 0) {
         fgcommand("switch-assign", property=breaker, value=true);
     }
-    navChecked = "sim/checklists/status/nav-lights";
-    state("CHECK", volts > 0 || navChecked) {
+    state("CHECK", volts > 0 || CHECKED_NAV) {
         fgcommand("switch-assign", property=breaker, value=true);
     }
 }

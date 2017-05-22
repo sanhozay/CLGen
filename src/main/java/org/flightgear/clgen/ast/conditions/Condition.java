@@ -36,6 +36,11 @@ public class Condition extends AbstractCondition implements Visitable {
         condition = child;
     }
 
+    /**
+     * Gets the condition child associated with this condition wrapper.
+     *
+     * @return the condition
+     */
     public AbstractCondition getCondition() {
         return condition;
     }

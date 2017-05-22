@@ -24,6 +24,7 @@ import org.flightgear.clgen.GeneratorException;
 import org.flightgear.clgen.ast.AbstractSyntaxTree;
 import org.flightgear.clgen.ast.Check;
 import org.flightgear.clgen.ast.Checklist;
+import org.flightgear.clgen.ast.Page;
 
 /**
  * Creates a Graphviz DOT representation of the checklists.
@@ -45,6 +46,11 @@ public class DotVisitor extends AbstractVisitor {
     private double hue = 0.0;
     private double colorCycle;
 
+    /**
+     * Constructs a DOT visitor with the path to the output directory.
+     *
+     * @param outputDir the path to the output directory
+     */
     public DotVisitor(final Path outputDir) {
         this.outputDir = outputDir;
     }
@@ -54,16 +60,18 @@ public class DotVisitor extends AbstractVisitor {
         colorCycle = 1.0 / ast.getChecklists().size();
         dot.append("digraph G {\n")
             .append("    pad=0.5;\n")
-            .append("    ranksep=0.35;\n")
-            .append("    node [fontsize=12];\n")
+            .append("    ranksep=0.35;\n");
+        if (ast.getProject() != null)
+            dot.append("    label=\"\\" + "n" + ast.getProject() + "\";\n");
+        dot.append("    node [fontsize=12];\n")
             .append("    node [fontcolor=white,fontname=\"helvetica-bold\"];\n")
-            .append("    node [shape=Mrecord,width=2.5,style=filled];\n");
+            .append("    node [shape=Mrecord,width=2.75,style=filled];\n");
     }
 
     @Override
     public void exit(final AbstractSyntaxTree ast) {
         dot.append("    node [color=\"#404040\",fontcolor=\"#404040\",fontname=\"helvetica\"];\n")
-            .append("    node [shape=note,width=2.25,style=\"\"];\n");
+            .append("    node [shape=record,width=2.5,style=\"\"];\n");
 
         dot.append(nodes.toString());
         dot.append(edges.toString());
@@ -86,10 +94,11 @@ public class DotVisitor extends AbstractVisitor {
         );
         dot.append(s);
         edges.append("    " + quote(checklist.getTitle()));
-        int totalChecks = checklist.getPages()
-            .parallelStream()
-            .mapToInt(page -> page.getChecks().size())
-            .sum();
+        int totalChecks = 0;
+        for (Page page : checklist.getPages())
+            for (Check check : page.getChecks())
+                if (!check.isSpacer())
+                    ++totalChecks;
         for (int i = 0; i < totalChecks; ++i)
             edges.append(" -> ").append(index + i);
         edges.append(";\n");
@@ -102,14 +111,37 @@ public class DotVisitor extends AbstractVisitor {
 
     @Override
     public void enter(final Check check) {
+        if (check.isSpacer())
+            return;
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("    %d [label=\"%s %s",
-            index++, check.getItem().getName(), check.getState().getName()
-        ));
-        for (String value : check.getAdditionalValues())
-            sb.append("&#92;n" + value.replaceAll("[\"]", "\\\\\""));
-        sb.append("\"];\n");
+        if (check.isSubtitle()) {
+            sb.append("    node [shape=box,style=\"rounded,filled\",");
+            sb.append(String.format("fillcolor=\"%.04f,0.1,0.95\"];\n", hue));
+            sb.append(String.format("    %d [label=\"%s\"];\n",
+                index++, escape(check.getItem().getName())
+            ));
+            sb.append("    node [shape=record,style=\"\"];\n");
+        } else {
+            sb.append(String.format("    %d [label=\"{%s",
+                index++, escape(check.getItem().getName())
+            ));
+            for (String value : check.getAdditionalValues())
+                sb.append("&#92;n" + escape(value));
+            sb.append(String.format("|%s}\"];\n",
+                escape(check.getState().getName())
+            ));
+        }
         nodes.append(sb.toString());
+    }
+
+    private String escape(final String s) {
+        return s
+            .replaceAll("[\"]", "\\\\\"")
+            .replace("|", "\\|")
+            .replace("<", "\\<")
+            .replace(">", "\\>")
+            .replace("{", "\\{")
+            .replace("}", "\\}");
     }
 
     private String quote(final String s) {

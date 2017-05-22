@@ -45,8 +45,21 @@ public class ChecklistListener extends AbstractListener {
     private Checklist checklist;
     private Page page;
 
+    /**
+     * Constructs a checklist listener with the item lookup table.
+     * <p>
+     * The items table should be populated before creating this
+     * listener.
+     *
+     * @param items the item lookup table
+     */
     public ChecklistListener(final Map<String, Item> items) {
         this.items = items;
+    }
+
+    @Override
+    public void enterProject(final CLGenParser.ProjectContext ctx) {
+        ast.setProject(unquote(ctx.getChild(2).getText()));
     }
 
     @Override
@@ -71,26 +84,43 @@ public class ChecklistListener extends AbstractListener {
     }
 
     @Override
-    public void enterCheck(final CLGenParser.CheckContext ctx) {
+    public void enterNormalCheck(final CLGenParser.NormalCheckContext ctx) {
         String n = unquote(ctx.getChild(2).getText());
         String s = unquote(ctx.getChild(4).getText());
-        Item item = items.get(n);
-        if (item == null) {
-            Token token = (Token)ctx.getChild(2).getPayload();
-            error(token, "Undefined item '%s' in checklist '%s'", n, checklist.getTitle());
-            return;
-        }
-        State state = item.getStates().get(s);
-        if (state == null) {
-            Token token = (Token)ctx.getChild(4).getPayload();
-            error(token, "State '%s' is not defined for item '%s'", s, n);
-            return;
-        }
-        Check check = new Check(item, state);
-        for (int i = 6; i < ctx.getChildCount() - 2; i += 2)
-            check.addAdditionalValue(unquote(ctx.getChild(i).getText()));
+        Check check = null;
+        if (items.size() > 0) {
+            Item item = items.get(n);
+            if (item == null) {
+                Token token = (Token)ctx.getChild(2).getPayload();
+                error(token, "Undefined item '%s' in checklist '%s'", n, checklist.getTitle());
+                return;
+            }
+            State state = item.getStates().get(s);
+            if (state == null) {
+                Token token = (Token)ctx.getChild(4).getPayload();
+                error(token, "State '%s' is not defined for item '%s'", s, n);
+                return;
+            }
+            check = new Check(item, state);
+            for (int i = 6; i < ctx.getChildCount() - 2; i += 2)
+                check.addAdditionalValue(unquote(ctx.getChild(i).getText()));
+        } else
+            check = new Check(new Item(n), new State(s));
         CheckContainer cc = page != null ? page : checklist;
         cc.addCheck(check);
+    }
+
+    @Override
+    public void enterSpacer(final CLGenParser.SpacerContext ctx) {
+        CheckContainer cc = page != null ? page : checklist;
+        cc.addCheck(new Check());
+    }
+
+    @Override
+    public void enterSubtitle(final CLGenParser.SubtitleContext ctx) {
+        String subtitle = unquote(ctx.getChild(2).getText());
+        CheckContainer cc = page != null ? page : checklist;
+        cc.addCheck(new Check(subtitle));
     }
 
     @Override
@@ -106,6 +136,13 @@ public class ChecklistListener extends AbstractListener {
 
     // Accessors
 
+    /**
+     * Gets the abstract syntax tree.
+     * <p>
+     * This is the product of this listener.
+     *
+     * @return the abstract syntax tree
+     */
     public AbstractSyntaxTree getAST() {
         return ast;
     }

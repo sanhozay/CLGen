@@ -51,7 +51,6 @@ import org.flightgear.clgen.ast.conditions.Terminal;
 import org.flightgear.clgen.ast.conditions.UnaryCondition;
 import org.flightgear.clgen.symbol.Symbol;
 import org.flightgear.clgen.symbol.Type;
-import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -80,6 +79,12 @@ public class XmlVisitor extends AbstractVisitor {
 
     private final Deque<BinaryCondition> binaryConditions = new ArrayDeque<>();
 
+    /**
+     * Constructs an XML visitor with the path to an output directory.
+     *
+     * @param outputDir the path to the output directory
+     * @throws GeneratorException if the visitor could not be created
+     */
     public XmlVisitor(final Path outputDir) throws GeneratorException {
         this.outputDir = outputDir;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -100,9 +105,10 @@ public class XmlVisitor extends AbstractVisitor {
 
     @Override
     public void enter(final AbstractSyntaxTree ast) {
+        String title = ast.getProject() != null ? ast.getProject() : "Checklists";
         wrapper = documentBuilder.newDocument();
         license.setAuthor(ast.getAuthor());
-        license.setTitle("Checklists");
+        license.setTitle(title);
         String l = license.getText();
         if (l != null)
             wrapper.appendChild(wrapper.createComment("\n" + l));
@@ -145,13 +151,6 @@ public class XmlVisitor extends AbstractVisitor {
         elements.pop();
         assert elements.isEmpty();
         XmlPostProcessor xpp = new XmlPostProcessor();
-        xpp.addBreakPatterns(
-            "<PropertyList>",
-            "</item>",
-            "</title>",
-            "<page>",
-            "</page>"
-        );
         write(document, filename(checklist), xpp);
     }
 
@@ -172,18 +171,16 @@ public class XmlVisitor extends AbstractVisitor {
 
     @Override
     public void enter(final Check check) {
-        String comment = String.format(" %s: %s ",
-            check.getItem().getName(),
-            check.getState().getName()
-        );
-        Comment c = document.createComment(comment);
-        elements.peek().appendChild(c);
-
         Element e = document.createElement("item");
-        appendText(e, "name", check.getItem().getName());
-        appendText(e, "value", check.getState().getName());
-        for (String additionalValue : check.getAdditionalValues())
-            appendText(e, "value", additionalValue);
+        if (check.getItem() != null) {
+            appendText(e, "name", check.getItem().getName());
+            if (check.getState() != null) {
+                appendText(e, "value", check.getState().getName());
+                for (String additionalValue : check.getAdditionalValues())
+                    appendText(e, "value", additionalValue);
+            }
+        } else // Spacer
+            appendText(e, "name", "");
         elements.peek().appendChild(e);
         elements.push(e);
     }
@@ -207,7 +204,13 @@ public class XmlVisitor extends AbstractVisitor {
 
     @Override
     public void enter(final BinaryCondition condition) {
-        if (nestedCondition(condition)) {
+        /*
+         * To optimize the XML output, operator elements are only pushed onto the
+         * stack if the parent condition differs from the current condition. This
+         * simplifies conditional structures based on parse trees built from
+         * expressions like a && b && c -> ((a && b) && c)
+         */
+        if (!nestedCondition(condition)) {
             Element e = document.createElement(operatorTag(condition.getOperator()));
             elements.peek().appendChild(e);
             elements.push(e);
@@ -218,7 +221,7 @@ public class XmlVisitor extends AbstractVisitor {
     @Override
     public void exit(final BinaryCondition condition) {
         binaryConditions.pop();
-        if (nestedCondition(condition))
+        if (!nestedCondition(condition))
             elements.pop();
     }
 
@@ -343,8 +346,8 @@ public class XmlVisitor extends AbstractVisitor {
     }
 
     private boolean nestedCondition(final BinaryCondition condition) {
-        return binaryConditions.isEmpty() ||
-            condition.getOperator() != binaryConditions.peek().getOperator();
+        return !binaryConditions.isEmpty() &&
+            condition.getOperator() == binaryConditions.peek().getOperator();
     }
 
     private String operatorTag(final Operator op) {

@@ -4,9 +4,13 @@ CLGen is a tool for generating Flightgear checklists. Input is in the form of a
 domain-specific language (DSL) that describes checklist items and lists. This
 program parses the DSL and generates XML files that can be used in Flightgear.
 
+CLGen also provides rudimentary support for reverse-engineering existing
+checklist definition files into CLGen source and generating PDF and DOT
+summaries of existing checklists.
+
 ## Background
 
-Flightgear checklists are defined in XML files. A typical checklist items looks
+Flightgear checklists are defined in XML files. A typical checklist looks
 something like this:
 
     <!-- Landing Lights OFF -->
@@ -71,6 +75,9 @@ Looking at the `OFF` state in more detail, the condition is that the output
 volts are less than or equal 6.0 and the binding to satisfy the `OFF` state is
 to assign zero to the switch property.
 
+For quick prototyping of simple checklists, items are optional but they are
+required to define interactive checklists with conditions and bindings.
+
 ### b. Checklists
 
 Checklists are defined in terms of items and states.
@@ -122,10 +129,39 @@ Existing files are overwritten without confirmation. Be careful about
 generating checklist files directly into your aircraft source directory if you
 have existing checklists.
 
+### Reverse-Engineering Checklists
+
+To reverse-engineer an existing checklist into CLG format, simply pass the name
+of the checklist XML file as the argument to CLGen. If the file extension is
+`.xml` it will reverse-engineer, otherwise it will treat the file as CLG source.
+
+    $ clgen myprojectdirectory/checklists.xml
+
+The XML file can be a single checklist XML file, containing `<checklist>`
+elements, or it can be a wrapper XML with included checklists like this one:
+
+    <PropertyList>
+      <checklist include="before-starting-engines.xml"/>
+      <checklist include="start-engines.xml"/>
+    </PropertyList>
+
+The included files are followed by CLGen and must be in the relative paths
+specified in the include attribute.
+
+The products of reverse-engineering are:
+
+ * `checklists.clg` - can be used as the basis for further maintenance
+ * `checklists.pdf` - shows roughly how the checklist will look in Flightgear
+ * `checklists.dot` - provides an overview of the checklists
+
+ Note that conditions and bindings are not currently parsed from the XML and do
+ not appear in the generated CLG file. Be careful when reverse-engineering that
+ you do not overwrite CLG files that you have been working on.
+
 ## Compiling the Program
 
 Compiling from source is only necessary if you are interested in looking at or
-changing the source code.
+changing the source code or using the development version.
 
 ### Prequisites
 
@@ -237,17 +273,34 @@ versions of keywords can be used as aliases.
 `fgcommand`  
 `item`  
 `marker`  
-`state`  
+`project`  
+`state` 
+`text`   
 
 ### Overall Structure
 
-The input file may begin with an author declaration. Adding this automatically
-adds a GPL2 header to the generated XML files with the author as copyright
-holder.
+The input file may begin with a project definition. The title of the project is
+used as a title in PDF, XML and DOT output. Adding an author definition
+automatically adds a GPL2 header to the generated XML files with the author
+as copyright holder.
 
-    author("Richard Senior");
+    project("My Checklists" {
+        author("Richard Senior");
+    }
 
-Therafter, item definitions must come before checklist definitions.
+The project definition can omit the author definition:
+
+    project("My Checklists");
+
+Therafter, global aliases and item definitions must come before checklist 
+definitions.
+
+Globals can appear anywhere outside an item definition and must be defined
+before they are used. It usually makes sense to define globals near the top of
+the file, after the project definition but before any item declarations. Use
+of upper case for global names is recommended, but not mandatory.
+
+    AUTO = "sim/checklists/auto/active";
 
     item("Parking Brake") {
         ...
@@ -274,6 +327,11 @@ Items are introduced with the `item` keyword.
 
 The item title appears in the checklist dialog.
 
+When prototyping checklists, items are optional, but as soon as the first
+item is defined, CLGen expects all checklist checks to be defined using
+items. Reverse engineering a checklists XML file is a quick way to add
+items in preparation for defining conditions and bindings.
+
 ### Aliases
 
 Items can define aliases to refer to Flightgear properties. These aliases may
@@ -292,6 +350,9 @@ must be letters, numbers, underscore or hyphens. These are valid identifiers:
     beacon, engine0, fuel_pump, outputVolts, power-button, _switch
 
 Redefinition of an alias within an item is not allowed.
+
+Global aliases are alias definitions defined outside the scope of an item.
+They can be used in any item but must be defined before use.
 
 ### Types
 
@@ -426,3 +487,12 @@ Checks can also include additional values. These are displayed in the Flightgear
 checklist dialog as additional lines below the state name.
 
     check("Suction", "OK", "(minimum 3 inches)");
+    
+To create blank lines and subtitles, a checklist can include text elements.
+There is no need to create dummy items.
+
+    text();
+    text("This is a subtitle:");
+
+These can be used to enhance the formatting of the Flightgear checklist
+dialog and are handled by CLGen's PDF and DOT output formats.

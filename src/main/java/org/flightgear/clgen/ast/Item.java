@@ -26,10 +26,20 @@ import java.util.Map;
  */
 public class Item implements Visitable {
 
-    private final String name;
+    private String name;
     private final Map<String, State> states = new HashMap<>();
     private Marker marker;
 
+    /**
+     * Constructs a blank item.
+     */
+    public Item() {}
+
+    /**
+     * Constructs an item with a name.
+     *
+     * @param name the name of the item
+     */
     public Item(final String name) {
         this.name = name;
     }
@@ -45,6 +55,13 @@ public class Item implements Visitable {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * @param name the name
+     */
+    public void setName(final String name) {
+        this.name = name;
     }
 
     /**

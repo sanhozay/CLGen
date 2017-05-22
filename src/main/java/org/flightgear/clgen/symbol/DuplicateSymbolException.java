@@ -24,6 +24,11 @@ package org.flightgear.clgen.symbol;
 @SuppressWarnings("serial")
 public class DuplicateSymbolException extends Exception {
 
+    /**
+     * Constructs an duplicate symbol exception with a message.
+     *
+     * @param message the message
+     */
     public DuplicateSymbolException(final String message) {
         super(message);
     }

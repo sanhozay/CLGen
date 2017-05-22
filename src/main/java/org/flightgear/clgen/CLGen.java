@@ -35,6 +35,7 @@ import org.flightgear.clgen.backend.XmlVisitor;
 import org.flightgear.clgen.listener.ChecklistListener;
 import org.flightgear.clgen.listener.ErrorListener;
 import org.flightgear.clgen.listener.ItemListener;
+import org.flightgear.clgen.reverse.ChecklistParser;
 
 /**
  * CLGen main class.
@@ -50,6 +51,11 @@ public class CLGen {
     private int errors = 0;
     private int warnings = 0;
 
+    /**
+     * Constructs the main class with the path of the input file.
+     *
+     * @param input the path to the input file
+     */
     public CLGen(final Path input) {
         this.input = input;
     }
@@ -69,7 +75,10 @@ public class CLGen {
         Path path = Paths.get(args[0]).normalize();
         if (path.toFile().canRead())
             try {
-                new CLGen(path).run();
+                if (path.toString().endsWith("xml"))
+                    new ChecklistParser(path).run();
+                else
+                    new CLGen(path).run();
             } catch (Exception e) {
                 e.printStackTrace(System.err);
                 System.err.println("Generation failed.");
@@ -116,7 +125,6 @@ public class CLGen {
             );
         else {
             Map<String, Item> items = buildItems(context);
-            //symbolTable.dump();
             AbstractSyntaxTree ast = buildAST(items, context);
             if (errors > 0) {
                 System.err.format(

@@ -40,9 +40,16 @@ public class UsageVisitor extends AbstractVisitor {
     }
 
     private final Map<String, ItemUsage> itemUsages = new TreeMap<>();
+    private final Map<String, Item> items;
     private int warnings = 0;
 
+    /**
+     * Constructs a usage visitor with the items lookup table.
+     *
+     * @param items the items lookup table
+     */
     public UsageVisitor(final Map<String, Item> items) {
+        this.items = items;
         for (Entry<String, Item> itemEntry : items.entrySet()) {
             ItemUsage usage = new ItemUsage();
             itemUsages.put(itemEntry.getKey(), usage);
@@ -54,6 +61,8 @@ public class UsageVisitor extends AbstractVisitor {
 
     @Override
     public void enter(final Check check) {
+        if (items.size() == 0 || check.isSpacer() || check.isSubtitle())
+            return;
         Item item = check.getItem();
         ItemUsage usage = itemUsages.get(item.getName());
         ++usage.count;
@@ -84,6 +93,13 @@ public class UsageVisitor extends AbstractVisitor {
         }
     }
 
+    /**
+     * Gets the number of usage warnings found by this usage visitor.
+     * <p>
+     * Usage warnings are generated for unused states and items.
+     *
+     * @return the number of usage warnings
+     */
     public int getNumberOfWarnings() {
         return warnings;
     }
