@@ -115,7 +115,8 @@ public class DotVisitor extends AbstractVisitor {
             return;
         StringBuilder sb = new StringBuilder();
         if (check.isSubtitle()) {
-            sb.append("    node [shape=box,style=rounded];\n");
+            sb.append("    node [shape=box,style=\"rounded,filled\",");
+            sb.append(String.format("fillcolor=\"%.04f,0.1,0.95\"];\n", hue));
             sb.append(String.format("    %d [label=\"%s\"];\n",
                 index++, escape(check.getItem().getName())
             ));
