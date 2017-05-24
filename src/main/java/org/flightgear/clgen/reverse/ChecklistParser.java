@@ -71,7 +71,7 @@ public class ChecklistParser extends AbstractXmlParser {
     }
 
     @Override
-    void parse(final Path path) {
+    protected void parse(final Path path) {
         try {
             SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
             SAXParser saxParser = saxParserFactory.newSAXParser();
@@ -92,7 +92,7 @@ public class ChecklistParser extends AbstractXmlParser {
     }
 
     private void emitChecklist(final PrintWriter out, final Checklist checklist) {
-        out.format("checklist(\"%s\") {\n", checklist.getTitle());
+        out.format("checklist(%s) {\n", quote(checklist.getTitle()));
         for (Check check : checklist.getChecks())
             emitCheck(out, check);
         out.println("}\n");
@@ -100,18 +100,18 @@ public class ChecklistParser extends AbstractXmlParser {
 
     private void emitCheck(final PrintWriter out, final Check check) {
         StringBuilder av = new StringBuilder();
-        check.getAdditionalValues().forEach(v -> av.append(", " + "\"" + v + "\""));
-        out.format("    check(\"%s\", \"%s\"%s);\n",
-            check.getItem().getName(),
-            check.getState().getName(),
+        check.getAdditionalValues().forEach(v -> av.append(", " + quote(v)));
+        out.format("    check(%s, %s%s);\n",
+            quote(check.getItem().getName()),
+            quote(check.getState().getName()),
             av.toString()
         );
     }
 
     private void emitItem(final PrintWriter out, final Item item) {
-        out.format("item(\"%s\") {\n", item.getName());
+        out.format("item(%s) {\n", quote(item.getName()));
         for (Entry<String, State> state : item.getStates().entrySet())
-            out.format("    state(\"%s\");\n", state.getValue().getName());
+            out.format("    state(%s);\n", quote(state.getValue().getName()));
         Marker marker = item.getMarker();
         if (marker != null)
             emitMarker(out, marker);
