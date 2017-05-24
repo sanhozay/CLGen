@@ -474,14 +474,17 @@ Checklists and checks are simple structures:
         check("Navigation Lights", "ON");
     }
 
-Each checklist block creates a separate XML file. The title of the file is
-derived from the title. So, in the example above, `clgen` creates a file called
-`before-starting-engines.xml`.
+Default behaviour is to create a single XML file called `checklists.xml` in the
+same directory as the input file. There is an option to create a wrapper XML
+file around multiple checklist files.
+
+When using a wrapper, each checklist block creates a separate XML file. The 
+title of the file is derived from the title. So, in the example above, `clgen`
+creates a file called `before-starting-engines.xml`.
 
 Duplicate checklist titles are not allowed. This comparison is not case
 sensitive, so "Parking" and "parking" are considered the same checklist
-title. This is necessary because output file names are always lower-case and
-the generated filename would be "parking.xml" in both cases.
+title.
 
 Checks can also include additional values. These are displayed in the Flightgear
 checklist dialog as additional lines below the state name.

@@ -65,19 +65,15 @@ import org.w3c.dom.Element;
  */
 public class XmlVisitor extends AbstractVisitor {
 
-    private final DocumentBuilder documentBuilder;
+    protected DocumentBuilder documentBuilder;
+    protected Document document;
+    protected boolean multiPage = false;
+
+    protected final Deque<Element> elements = new ArrayDeque<>();
+    protected final Deque<BinaryCondition> binaryConditions = new ArrayDeque<>();
+
     private Transformer transformer;
-
-    private final License license = new License("gpl2");
-    private boolean multiPage = false;
-
     private final Path outputDir;
-    private Document wrapper, document;
-
-    private final Deque<Element> wrapperElements = new ArrayDeque<>();
-    private final Deque<Element> elements = new ArrayDeque<>();
-
-    private final Deque<BinaryCondition> binaryConditions = new ArrayDeque<>();
 
     /**
      * Constructs an XML visitor with the path to an output directory.
@@ -106,52 +102,31 @@ public class XmlVisitor extends AbstractVisitor {
     @Override
     public void enter(final AbstractSyntaxTree ast) {
         String title = ast.getProject() != null ? ast.getProject() : "Checklists";
-        wrapper = documentBuilder.newDocument();
-        license.setAuthor(ast.getAuthor());
-        license.setTitle(title);
-        String l = license.getText();
-        if (l != null)
-            wrapper.appendChild(wrapper.createComment("\n" + l));
-        Element e = wrapper.createElement("PropertyList");
-        wrapperElements.push(e);
-        wrapper.appendChild(e);
+        document = open(title, ast.getAuthor());
+        Element e = document.createElement("PropertyList");
+        document.appendChild(e);
+        elements.push(e);
     }
 
     @Override
     public void exit(final AbstractSyntaxTree ast) throws GeneratorException {
-        wrapperElements.pop();
-        assert wrapperElements.isEmpty();
-        XmlPostProcessor postProcessor = new XmlPostProcessor();
-        write(wrapper, "checklists.xml", postProcessor);
+        elements.pop();
+        assert elements.isEmpty();
+        write(document, "checklists.xml", new XmlPostProcessor());
     }
 
     @Override
     public void enter(final Checklist checklist) throws GeneratorException {
-        document = documentBuilder.newDocument();
-        license.setTitle(String.format("Checklist: %s", checklist.getTitle()));
-        String l = license.getText();
-        if (l != null)
-            document.appendChild(document.createComment("\n" + l));
-
-        Element e = document.createElement("PropertyList");
-        appendText(e, "title", checklist.getTitle());
-        document.appendChild(e);
-        elements.push(e);
-
-        Element c = wrapper.createElement("checklist");
-        c.setAttribute("include", filename(checklist));
-        wrapperElements.peek().appendChild(c);
-        wrapperElements.push(c);
         multiPage = checklist.getPages().size() > 1;
+        Element e = document.createElement("checklist");
+        appendText(e, "title", checklist.getTitle());
+        elements.peek().appendChild(e);
+        elements.push(e);
     }
 
     @Override
     public void exit(final Checklist checklist) {
-        wrapperElements.pop();
         elements.pop();
-        assert elements.isEmpty();
-        XmlPostProcessor xpp = new XmlPostProcessor();
-        write(document, filename(checklist), xpp);
     }
 
     @Override
@@ -312,7 +287,7 @@ public class XmlVisitor extends AbstractVisitor {
 
     // Other methods
 
-    private void appendTerminal(final Element parent, final Terminal terminal) {
+    protected void appendTerminal(final Element parent, final Terminal terminal) {
         if (terminal.getValue() instanceof Symbol) {
             Symbol symbol = (Symbol)terminal.getValue();
             appendText(parent, "property", symbol.getExpansion());
@@ -324,7 +299,7 @@ public class XmlVisitor extends AbstractVisitor {
             appendText(parent, "value", terminal.getValue());
     }
 
-    private void appendText(final Element parent, final String node,
+    protected void appendText(final Element parent, final String node,
         final Object value, final Type type) {
         Element e = document.createElement(node);
         parent.appendChild(e);
@@ -334,11 +309,11 @@ public class XmlVisitor extends AbstractVisitor {
         e.appendChild(document.createTextNode(value.toString()));
     }
 
-    private void appendText(final Element parent, final String node, final Object value) {
+    protected void appendText(final Element parent, final String node, final Object value) {
         appendText(parent, node, value, Type.NULL);
     }
 
-    private String filename(final Checklist checklist) {
+    protected String filename(final Checklist checklist) {
         String s = checklist.getTitle()
             .toLowerCase()
             .replaceAll(" ", "-");
@@ -348,6 +323,16 @@ public class XmlVisitor extends AbstractVisitor {
     private boolean nestedCondition(final BinaryCondition condition) {
         return !binaryConditions.isEmpty() &&
             condition.getOperator() == binaryConditions.peek().getOperator();
+    }
+
+    protected Document open(final String title, final String author) {
+        Document document = documentBuilder.newDocument();
+        License license = new License("gpl2");
+        license.setAuthor(author);
+        license.setTitle(title);
+        if (license.getText() != null)
+            document.appendChild(document.createComment("\n" + license.getText()));
+        return document;
     }
 
     private String operatorTag(final Operator op) {
@@ -374,7 +359,7 @@ public class XmlVisitor extends AbstractVisitor {
         return null;
     }
 
-    private void write(final Document document, final String filename,
+    protected void write(final Document document, final String filename,
             final XmlPostProcessor postProcessor) throws GeneratorException {
         Path p = outputDir.resolve(filename);
         StringWriter sw = new StringWriter();
