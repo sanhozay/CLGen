@@ -101,11 +101,18 @@ public class ChecklistParser extends AbstractXmlParser {
     private void emitCheck(final PrintWriter out, final Check check) {
         StringBuilder av = new StringBuilder();
         check.getAdditionalValues().forEach(v -> av.append(", " + quote(v)));
-        out.format("    check(%s, %s%s);\n",
-            quote(check.getItem().getName()),
-            quote(check.getState().getName()),
-            av.toString()
-        );
+        if (check.isSpacer())
+            out.println("    text();");
+        else if (check.isSubtitle())
+            out.format("    text(%s);\n",
+                quote(check.getItem().getName())
+            );
+        else
+            out.format("    check(%s, %s%s);\n",
+                quote(check.getItem().getName()),
+                quote(check.getState().getName()),
+                av.toString()
+            );
     }
 
     private void emitItem(final PrintWriter out, final Item item) {
