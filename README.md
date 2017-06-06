@@ -1,8 +1,8 @@
 # CLGen
 
 CLGen is a tool for generating Flightgear checklists. Input is in the form of a
-domain-specific language (DSL) that describes checklist items and lists. This
-program parses the DSL and generates XML files that can be used in Flightgear.
+domain-specific language (DSL) that describes checklist items and lists. CLGen
+parses the DSL and generates XML files that can be used in Flightgear.
 
 CLGen also provides rudimentary support for reverse-engineering existing
 checklist definition files into CLGen source and generating PDF and DOT
@@ -45,8 +45,7 @@ shown above, with minor changes for the on and off states.
 Other items may not be so repetitive, but most items will be checked more than
 once. The end result is series of quite long XML descriptions that are tedious
 to write and awkward to review and change. Moving the landing light switch
-within the cockpit, for example, involves changing the marker in five places,
-possibly in five different XML files.
+within the cockpit, for example, involves changing the marker in five places.
 
 ## Overview of Checklist Definition Language (the DSL)
 
@@ -108,19 +107,16 @@ The easiest way to run CLGen is by downloading a release distribution from
 <a href="https://github.com/sanhozay/CLGen/releases">CLGen/releases</a>.
 
 1. Download the distribution zip file and unpack it
-2. Move to the distribution directory
-3. Run the `clgen` script
+2. Add the distribution directory to your path
+3. Run the `clgen` script, passing an input file as an argument
 
 On Linux/Mac OS:
 
-    $ clgen myprojectdirectory/mychecklists.clg
+    $ clgen mychecklists.clg
 
 On Windows:
 
-    > clgen.bat myprojectdirectory\mychecklists.clg
-
-You could add the distribution directory to your `path` if you prefer but note
-that aliasing on Linux and Mac OS will not work.
+    > clgen mychecklists.clg
 
 The output files are created in the same directory as the input file, so it 
 makes sense to create a separate directory to hold your checklist project.
@@ -131,11 +127,11 @@ have existing checklists.
 
 ### Reverse-Engineering Checklists
 
-To reverse-engineer an existing checklist into CLG format, simply pass the name
-of the checklist XML file as the argument to CLGen. If the file extension is
-`.xml` it will reverse-engineer, otherwise it will treat the file as CLG source.
+To reverse-engineer an existing checklist into CLG format, pass the name of the
+checklist XML file as the argument to CLGen. If the file extension is `.xml` it
+will reverse-engineer, otherwise it will treat the file as CLG source.
 
-    $ clgen myprojectdirectory/checklists.xml
+    $ clgen checklists.xml
 
 The XML file can be a single checklist XML file, containing `<checklist>`
 elements, or it can be a wrapper XML with included checklists like this one:
@@ -210,7 +206,7 @@ On Linux/Mac OS:
 
 On Windows:
 
-    > clgen.bat mychecklists.clg
+    > clgen mychecklists.clg
 
 ## Frequently Asked Questions
 
@@ -236,12 +232,25 @@ The solution is to create a Nasal script file in the aircraft's Nasal directory
 and add a custom fgcommand to it using `addcommand`. This command can then be
 used from both the cockpit control and the checklist.
 
-## What is checklists.dot and how can I view it?
+### What is checklists.dot and how can I view it?
 
 The .dot file is a visualization of the checklists structure and can be
 rendered to an image using a tool like Graphviz.
 
     $ dot -o checklists.png -Tpng checklists.dot
+
+### How can I create multiple checklist XML files with a wrapper?
+
+By default, CLGen creates a single XML output file called `checklists.xml`. To
+create multiple files, edit the `clgen` script (Linux/Mac OS) or the `clgen.bat`
+file (Windows) and add an additional argument to the `java` command:
+
+    java -Dwrapper -jar ...
+
+Running CLGen will now create a wrapper XML file called `checklists.xml` that
+includes separate XML files, one for each checklist. These included XML files
+are named based on the name of the checklist. So a checklist "Before Starting
+Engines" will create an XML file called `before-starting-engines.xml`.
 
 ## Checklist Definition Language
 
@@ -475,8 +484,8 @@ Checklists and checks are simple structures:
     }
 
 Default behaviour is to create a single XML file called `checklists.xml` in the
-same directory as the input file. There is an option to create a wrapper XML
-file around multiple checklist files.
+same directory as the input file. See "Frequently Asked Questions" above for a
+description of how to change this behaviour.
 
 When using a wrapper, each checklist block creates a separate XML file. The 
 title of the file is derived from the title. So, in the example above, `clgen`
