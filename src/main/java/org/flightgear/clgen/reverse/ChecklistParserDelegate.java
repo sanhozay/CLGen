@@ -102,8 +102,10 @@ public class ChecklistParserDelegate extends DefaultHandler {
         case "item":
             if (items.containsKey(item.getName()))
                 item = items.get(item.getName());
-            item.addState(state);
-            items.put(item.getName(), item);
+            if (state.getName() != null && state.getName().trim().length() > 0) {
+                item.addState(state);
+                items.put(item.getName(), item);
+            }
             checklist.addCheck(check);
             break;
         case "name":

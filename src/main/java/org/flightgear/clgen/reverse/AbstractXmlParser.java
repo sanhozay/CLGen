@@ -30,6 +30,21 @@ public abstract class AbstractXmlParser {
      *
      * @param path the path
      */
-     abstract void parse(final Path path);
+     abstract protected void parse(final Path path);
+
+     /**
+      * Quotes a string, escaping characters as necessary.
+      *
+      * @param s the string to quote
+      * @return the quoted string
+      */
+     protected String quote(final String s) {
+         String escaped = s;
+         if (s != null)
+            escaped = escaped
+                 .replace("\\", "\\\\")
+                 .replace("\"", "\\\"");
+         return String.format("\"%s\"", escaped);
+     }
 
 }

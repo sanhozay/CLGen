@@ -102,10 +102,10 @@ public class ChecklistListener extends AbstractListener {
                 return;
             }
             check = new Check(item, state);
-            for (int i = 6; i < ctx.getChildCount() - 2; i += 2)
-                check.addAdditionalValue(unquote(ctx.getChild(i).getText()));
         } else
             check = new Check(new Item(n), new State(s));
+        for (int i = 6; i < ctx.getChildCount() - 2; i += 2)
+            check.addAdditionalValue(unquote(ctx.getChild(i).getText()));
         CheckContainer cc = page != null ? page : checklist;
         cc.addCheck(check);
     }

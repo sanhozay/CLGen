@@ -2,7 +2,7 @@ package org.flightgear.clgen.listener
 
 import spock.lang.Specification
 
-class TestItemListener extends Specification {
+class TestAbstractListener extends Specification {
 
     class Listener extends AbstractListener {}
 
