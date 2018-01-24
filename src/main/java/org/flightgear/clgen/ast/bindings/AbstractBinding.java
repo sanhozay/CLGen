@@ -26,7 +26,7 @@ import org.flightgear.clgen.ast.conditions.Condition;
  */
 public abstract class AbstractBinding implements Visitable {
 
-    protected Condition condition;
+    Condition condition;
 
     /**
      * Gets the condition applicable to the binding.

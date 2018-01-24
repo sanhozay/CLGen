@@ -65,12 +65,12 @@ import org.w3c.dom.Element;
  */
 public class XmlVisitor extends AbstractVisitor {
 
-    protected DocumentBuilder documentBuilder;
-    protected Document document;
-    protected boolean multiPage = false;
+    private DocumentBuilder documentBuilder;
+    Document document;
+    boolean multiPage = false;
 
-    protected final Deque<Element> elements = new ArrayDeque<>();
-    protected final Deque<BinaryCondition> binaryConditions = new ArrayDeque<>();
+    final Deque<Element> elements = new ArrayDeque<>();
+    private final Deque<BinaryCondition> binaryConditions = new ArrayDeque<>();
 
     private Transformer transformer;
     private final Path outputDir;
@@ -185,7 +185,7 @@ public class XmlVisitor extends AbstractVisitor {
          * simplifies conditional structures based on parse trees built from
          * expressions like a && b && c -> ((a && b) && c)
          */
-        if (!nestedCondition(condition)) {
+        if (rootCondition(condition)) {
             Element e = document.createElement(operatorTag(condition.getOperator()));
             elements.peek().appendChild(e);
             elements.push(e);
@@ -196,7 +196,7 @@ public class XmlVisitor extends AbstractVisitor {
     @Override
     public void exit(final BinaryCondition condition) {
         binaryConditions.pop();
-        if (!nestedCondition(condition))
+        if (rootCondition(condition))
             elements.pop();
     }
 
@@ -287,7 +287,7 @@ public class XmlVisitor extends AbstractVisitor {
 
     // Other methods
 
-    protected void appendTerminal(final Element parent, final Terminal terminal) {
+    private void appendTerminal(final Element parent, final Terminal terminal) {
         if (terminal.getValue() instanceof Symbol) {
             Symbol symbol = (Symbol)terminal.getValue();
             appendText(parent, "property", symbol.getExpansion());
@@ -299,8 +299,8 @@ public class XmlVisitor extends AbstractVisitor {
             appendText(parent, "value", terminal.getValue());
     }
 
-    protected void appendText(final Element parent, final String node,
-        final Object value, final Type type) {
+    private void appendText(final Element parent, final String node,
+                            final Object value, final Type type) {
         Element e = document.createElement(node);
         parent.appendChild(e);
         String typeAttribute = typeAttributeForType(type);
@@ -309,23 +309,23 @@ public class XmlVisitor extends AbstractVisitor {
         e.appendChild(document.createTextNode(value.toString()));
     }
 
-    protected void appendText(final Element parent, final String node, final Object value) {
+    void appendText(final Element parent, final String node, final Object value) {
         appendText(parent, node, value, Type.NULL);
     }
 
-    protected String filename(final Checklist checklist) {
+    String filename(final Checklist checklist) {
         String s = checklist.getTitle()
             .toLowerCase()
             .replaceAll(" ", "-");
         return s + ".xml";
     }
 
-    private boolean nestedCondition(final BinaryCondition condition) {
-        return !binaryConditions.isEmpty() &&
-            condition.getOperator() == binaryConditions.peek().getOperator();
+    private boolean rootCondition(final BinaryCondition condition) {
+        return binaryConditions.isEmpty() ||
+                condition.getOperator() != binaryConditions.peek().getOperator();
     }
 
-    protected Document open(final String title, final String author) {
+    Document open(final String title, final String author) {
         Document document = documentBuilder.newDocument();
         License license = new License("gpl2");
         license.setAuthor(author);
@@ -359,8 +359,8 @@ public class XmlVisitor extends AbstractVisitor {
         return null;
     }
 
-    protected void write(final Document document, final String filename,
-            final XmlPostProcessor postProcessor) throws GeneratorException {
+    void write(final Document document, final String filename,
+               final XmlPostProcessor postProcessor) throws GeneratorException {
         Path p = outputDir.resolve(filename);
         StringWriter sw = new StringWriter();
         try {

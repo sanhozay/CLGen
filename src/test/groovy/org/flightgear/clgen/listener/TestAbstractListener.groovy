@@ -6,7 +6,7 @@ class TestAbstractListener extends Specification {
 
     class Listener extends AbstractListener {}
 
-    def listener = new Listener();
+    def listener = new Listener()
 
     def "Check simple quoted strings can be unquoted"() {
         expect: listener.unquote('"abc"') == 'abc'

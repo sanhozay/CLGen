@@ -24,7 +24,7 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  *
  * @author Richard Senior
  */
-public interface SemanticErrorListener {
+interface SemanticErrorListener {
 
     /**
      * Handle a semantic error.

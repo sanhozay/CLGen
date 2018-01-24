@@ -30,7 +30,7 @@ import org.flightgear.clgen.CLGenBaseListener;
  */
 public abstract class AbstractListener extends CLGenBaseListener {
 
-    protected final List<SemanticErrorListener> errorListeners = new ArrayList<>();
+    private final List<SemanticErrorListener> errorListeners = new ArrayList<>();
     private int errors = 0, warnings = 0;
 
     /**
@@ -74,7 +74,7 @@ public abstract class AbstractListener extends CLGenBaseListener {
      * @param format a format string for the error message
      * @param args an array of arguments to the format string
      */
-    protected void error(final Token token, final String format, final Object ... args) {
+    void error(final Token token, final String format, final Object... args) {
         String message = String.format(format, args);
         errorListeners.forEach(l -> l.semanticError(this, token, message));
         ++errors;
@@ -87,7 +87,7 @@ public abstract class AbstractListener extends CLGenBaseListener {
      * @param format a format string for the warning message
      * @param args an array of arguments to the format string
      */
-    protected void warning(final Token token, final String format, final Object ... args) {
+    void warning(final Token token, final String format, final Object... args) {
         String message = String.format(format, args);
         errorListeners.forEach(l -> l.semanticWarning(this, token, message));
         ++warnings;

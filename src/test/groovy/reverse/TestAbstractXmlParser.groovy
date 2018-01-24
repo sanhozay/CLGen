@@ -13,7 +13,7 @@ class TestAbstractXmlParser extends Specification {
         void parse(Path path) {}
     }
 
-    def parser = new Parser();
+    def parser = new Parser()
 
     def "Check simple strings can be quoted"() {
         expect: parser.quote('abc') == '"abc"'

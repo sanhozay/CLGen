@@ -26,8 +26,8 @@ import org.flightgear.clgen.symbol.Symbol;
  */
 public class ValueBinding extends AbstractBinding {
 
-    protected final Symbol symbol;
-    protected Object value = null;
+    private final Symbol symbol;
+    private final Object value;
 
     /**
      * Constructs a value binding with a symbol and value.

@@ -17,6 +17,7 @@
 package org.flightgear.clgen.backend;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -55,8 +56,7 @@ public class XmlPostProcessor {
      * @param patterns a variable argument list of patterns
      */
     public void addBreakPatterns(final String ... patterns) {
-        for (String pattern : patterns)
-            breakPatterns.add(pattern);
+        Collections.addAll(breakPatterns, patterns);
     }
 
 }

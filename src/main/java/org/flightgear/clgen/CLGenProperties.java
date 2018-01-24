@@ -42,7 +42,10 @@ public class CLGenProperties {
         try (InputStream in = ClassLoader.getSystemResourceAsStream(PROPERTIES_FILE)) {
             properties = new Properties();
             properties.load(in);
-        } catch (IOException e) {}
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
     }
 
     /**

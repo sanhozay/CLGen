@@ -62,7 +62,7 @@ public class UnaryCondition extends AbstractCondition {
     }
 
     @Override
-    public Type getType() {
+    Type getType() {
         return Type.BOOL;
     }
 

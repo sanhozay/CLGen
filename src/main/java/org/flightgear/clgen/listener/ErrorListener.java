@@ -69,7 +69,6 @@ public class ErrorListener extends BaseErrorListener implements SemanticErrorLis
      *
      * @param line the line number where the error occurred
      * @param charPositionInLine the position of the error within the line
-     * @param tokenStream the token stream that produced the error
      * @return a string showing the context of the error
      */
     private String errorContext(final int line, final int charPositionInLine) {
@@ -77,7 +76,7 @@ public class ErrorListener extends BaseErrorListener implements SemanticErrorLis
         CharStream stream = tokenStream.getTokenSource().getInputStream();
         String[] lines = stream.toString().split("\n");
         if (line - 1 < lines.length) {
-            sb.append(lines[line - 1] + "\n");
+            sb.append(lines[line - 1]).append("\n");
             for (int i = 0; i < charPositionInLine; ++i)
                 sb.append(' ');
             sb.append("^");

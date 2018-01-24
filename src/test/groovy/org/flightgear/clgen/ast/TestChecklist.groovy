@@ -1,6 +1,6 @@
-package org.flightgear.clgen.ast;
+package org.flightgear.clgen.ast
 
-import spock.lang.Specification;
+import spock.lang.Specification
 
 class TestChecklist extends Specification {
 

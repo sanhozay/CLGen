@@ -1,6 +1,6 @@
-package org.flightgear.clgen.backend;
+package org.flightgear.clgen.backend
 
-import spock.lang.Specification;
+import spock.lang.Specification
 
 class TestXmlPostProcessor extends Specification {
 

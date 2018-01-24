@@ -43,7 +43,7 @@ import org.flightgear.clgen.reverse.ChecklistParser;
  *
  * @author Richard Senior
  */
-public class CLGen {
+class CLGen {
 
     private ErrorListener errorListener;
     private final ParseTreeWalker walker = new ParseTreeWalker();
@@ -57,7 +57,7 @@ public class CLGen {
      *
      * @param input the path to the input file
      */
-    public CLGen(final Path input) {
+    private CLGen(final Path input) {
         this.input = input;
     }
 
@@ -160,7 +160,7 @@ public class CLGen {
     /*
      * Parses the input, producing a parse tree as output.
      */
-    private SpecificationContext parse(final CommonTokenStream tokenStream) throws IOException {
+    private SpecificationContext parse(final CommonTokenStream tokenStream) {
         CLGenParser parser = new CLGenParser(tokenStream);
         parser.removeErrorListeners();
         parser.addErrorListener(errorListener);

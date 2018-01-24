@@ -61,7 +61,7 @@ public class BinaryCondition extends AbstractCondition {
     }
 
     @Override
-    public Type getType() {
+    Type getType() {
         if (lhs.getType() == Type.NULL && rhs.getType() == Type.NULL)
             return Type.NULL;
         if (rhs.getType() != Type.NULL)
