@@ -1,3 +1,7 @@
+[![GPL3](https://img.shields.io/badge/license-GPL3-%23a42e2b.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![Travis branch](https://img.shields.io/travis/sanhozay/CLGen/master.svg?label=master)](https://travis-ci.org/sanhozay/CLGen)
+[![Travis branch](https://img.shields.io/travis/sanhozay/CLGen/develop.svg?label=develop)](https://travis-ci.org/sanhozay/CLGen)
+
 # CLGen
 
 CLGen is a tool for generating Flightgear checklists. Input is in the form of a
