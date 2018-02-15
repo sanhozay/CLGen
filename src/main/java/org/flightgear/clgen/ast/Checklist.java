@@ -148,11 +148,8 @@ public class Checklist implements Visitable, CheckContainer {
             return false;
         Checklist other = (Checklist)obj;
         if (title == null) {
-            if (other.title != null)
-                return false;
-        } else if (!title.equalsIgnoreCase(other.title))
-            return false;
-        return true;
+            return other.title == null;
+        } else return title.equalsIgnoreCase(other.title);
     }
 
 }

@@ -1,4 +1,4 @@
-package org.flightgear.clgen.ast;
+package org.flightgear.clgen.ast
 
 import org.flightgear.clgen.ast.bindings.CommandBinding
 import org.flightgear.clgen.ast.bindings.PropertyBinding
@@ -9,7 +9,7 @@ import org.flightgear.clgen.ast.conditions.Operator
 import org.flightgear.clgen.ast.conditions.Terminal
 import org.flightgear.clgen.ast.conditions.UnaryCondition
 
-import spock.lang.Specification;
+import spock.lang.Specification
 
 class TestVisitable extends Specification {
 
@@ -27,8 +27,8 @@ class TestVisitable extends Specification {
 
     def "Check that a binary expression accepts its visitor"() {
         given:  def expression = new BinaryCondition(Operator.AND)
-        and:    def lhs = Mock(Condition);
-        and:    def rhs = Mock(Condition);
+        and:    def lhs = Mock(Condition)
+        and:    def rhs = Mock(Condition)
         and:    expression.addChild(lhs)
         and:    expression.addChild(rhs)
         when:   expression.accept(visitor)
@@ -39,9 +39,9 @@ class TestVisitable extends Specification {
     }
 
     def "Check that a check accepts its visitor"() {
-        given:  def item = Mock(Item);
-        and:    def state = Mock(State);
-        and:    def check = new Check(item, state);
+        given:  def item = Mock(Item)
+        and:    def state = Mock(State)
+        and:    def check = new Check(item, state)
         when:   check.accept(visitor)
         then:   1 * visitor.enter(check)
         and:    1 * state.accept(visitor)
@@ -50,7 +50,7 @@ class TestVisitable extends Specification {
     }
 
     def "Check that an item accepts its visitor"() {
-        given:  def item = new Item();
+        given:  def item = new Item()
         and:    def coord = Mock(Coordinate, constructorArgs: [0, 0, 0])
         and:    def marker = Mock(Marker, constructorArgs: [coord, 0])
         and:    item.marker = marker
@@ -72,7 +72,7 @@ class TestVisitable extends Specification {
 
     def "Check that a command binding accepts its visitor"() {
         given:  def binding = new CommandBinding("some-command")
-        and:    def condition = Mock(Condition);
+        and:    def condition = Mock(Condition)
         and:    binding.condition = condition
         when:   binding.accept(visitor)
         then:   1 * visitor.enter(binding)
@@ -109,7 +109,7 @@ class TestVisitable extends Specification {
 
     def "Check that a property binding accepts its visitor"() {
         given:  def binding = new PropertyBinding(null, null)
-        and:    def condition = Mock(Condition);
+        and:    def condition = Mock(Condition)
         and:    binding.condition = condition
         when:   binding.accept(visitor)
         then:   1 * visitor.enter(binding)
@@ -132,7 +132,6 @@ class TestVisitable extends Specification {
 
     def "Check that a terminal accepts its visitor"() {
         given:  def terminal = new Terminal(null)
-        and:    def condition = Mock(Condition);
         when:   terminal.accept(visitor)
         then:   1 * visitor.enter(terminal)
         and:    1 * visitor.exit(terminal)
@@ -140,7 +139,7 @@ class TestVisitable extends Specification {
 
     def "Check that a unary expression accepts its visitor"() {
         given:  def expression = new UnaryCondition(Operator.NOT)
-        and:    def condition = Mock(Condition);
+        and:    def condition = Mock(Condition)
         and:    expression.addChild(condition)
         when:   expression.accept(visitor)
         then:   1 * visitor.enter(expression)
@@ -150,7 +149,7 @@ class TestVisitable extends Specification {
 
     def "Check that a value binding accepts its visitor"() {
         given:  def binding = new ValueBinding(null, 0.0)
-        and:    def condition = Mock(Condition);
+        and:    def condition = Mock(Condition)
         and:    binding.condition = condition
         when:   binding.accept(visitor)
         then:   1 * visitor.enter(binding)

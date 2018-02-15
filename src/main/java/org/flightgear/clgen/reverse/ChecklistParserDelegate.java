@@ -31,7 +31,6 @@ import org.flightgear.clgen.ast.Item;
 import org.flightgear.clgen.ast.Marker;
 import org.flightgear.clgen.ast.State;
 import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
@@ -39,7 +38,7 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  * @author Richard Senior
  */
-public class ChecklistParserDelegate extends DefaultHandler {
+class ChecklistParserDelegate extends DefaultHandler {
 
     private final AbstractXmlParser parser;
     private final Deque<StringBuilder> builderStack = new ArrayDeque<>();
@@ -66,7 +65,7 @@ public class ChecklistParserDelegate extends DefaultHandler {
 
     @Override
     public void startElement(final String namespaceURI, final String localName,
-            final String qName, final Attributes atts) throws SAXException {
+            final String qName, final Attributes atts) {
         builderStack.push(new StringBuilder());
         switch(qName) {
         case "checklist":
@@ -90,7 +89,7 @@ public class ChecklistParserDelegate extends DefaultHandler {
 
     @Override
     public void endElement(final String uri, final String localName,
-            final String qName) throws SAXException {
+            final String qName) {
         final String s = builderStack.pop().toString();
         switch(qName) {
         case "checklist":
@@ -140,7 +139,7 @@ public class ChecklistParserDelegate extends DefaultHandler {
     }
 
     @Override
-    public void characters(final char[] ch, final int start, final int length) throws SAXException {
+    public void characters(final char[] ch, final int start, final int length) {
         if (!builderStack.isEmpty())
             builderStack.peek().append(ch, start, length);
     }

@@ -318,9 +318,9 @@ public class ItemListener extends AbstractListener {
         PropertyBinding binding = new PropertyBinding(lval, rval);
         binding.setCondition(bindingCondition);
         state.addBinding(binding);
-        if (rval.getType() != Type.NULL)
+        if (rval != null && rval.getType() != Type.NULL)
             try {
-                if (lval != null && rval != null)
+                if (lval != null)
                     lval.setType(rval.getType());
             } catch (TypeException e) {
                 Token token = (Token)ctx.getChild(1).getPayload();

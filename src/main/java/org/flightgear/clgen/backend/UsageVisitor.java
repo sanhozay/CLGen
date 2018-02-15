@@ -35,8 +35,8 @@ import org.flightgear.clgen.ast.State;
 public class UsageVisitor extends AbstractVisitor {
 
     private class ItemUsage {
-        public int count = 0;
-        public final Map<String, Integer> stateUsages = new TreeMap<>();
+        int count = 0;
+        final Map<String, Integer> stateUsages = new TreeMap<>();
     }
 
     private final Map<String, ItemUsage> itemUsages = new TreeMap<>();

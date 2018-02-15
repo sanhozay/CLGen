@@ -100,7 +100,7 @@ public class ChecklistParser extends AbstractXmlParser {
 
     private void emitCheck(final PrintWriter out, final Check check) {
         StringBuilder av = new StringBuilder();
-        check.getAdditionalValues().forEach(v -> av.append(", " + quote(v)));
+        check.getAdditionalValues().forEach(v -> av.append(", ").append(quote(v)));
         if (check.isSpacer())
             out.println("    text();");
         else if (check.isSubtitle())

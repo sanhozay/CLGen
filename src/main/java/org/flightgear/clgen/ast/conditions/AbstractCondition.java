@@ -42,7 +42,7 @@ public abstract class AbstractCondition implements Visitable {
      *
      * @return the type of the condition
      */
-    public Type getType() {
+    Type getType() {
         return Type.NULL;
     }
 

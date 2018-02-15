@@ -2,13 +2,7 @@
 .gradle/
 build/
 
-# Eclipse
-.classpath
-.project
-.settings
-bin/
-
-# Ignore samples outputs
+# Samples outputs
 samples/**/*.dot
 samples/**/*.pdf
 samples/**/*.png

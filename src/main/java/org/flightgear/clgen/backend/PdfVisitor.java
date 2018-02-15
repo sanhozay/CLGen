@@ -109,7 +109,7 @@ public class PdfVisitor extends AbstractVisitor {
         try {
             String i = check.getItem() != null ? nvl(check.getItem().getName()) : "";
             String s = check.getState() != null ? nvl(check.getState().getName()) : "";
-            String line = String.format("%s %s %s", i, dots(i, s, textWidth(P) - 2), s);
+            String line = String.format("%s %s %s", i, dots(i, s, normalTextWidth() - 2), s);
             Paragraph p = new Paragraph(line, empty(s) ? B : P);
             p.setSpacingBefore(6.0f);
             document.add(p);
@@ -127,9 +127,9 @@ public class PdfVisitor extends AbstractVisitor {
 
     // Other methods
 
-    private int textWidth(final Font font) {
-        BaseFont b = font.getCalculatedBaseFont(false);
-        float w = b.getWidthPoint(".", font.getSize());
+    private int normalTextWidth() {
+        BaseFont b = PdfVisitor.P.getCalculatedBaseFont(false);
+        float w = b.getWidthPoint(".", PdfVisitor.P.getSize());
         return (int)Math.floor((document.getPageSize().getWidth() - MARGIN * 2) / w);
     }
 

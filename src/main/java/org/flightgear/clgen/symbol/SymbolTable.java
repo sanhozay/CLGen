@@ -51,10 +51,7 @@ public class SymbolTable {
      * @throws DuplicateSymbolException if the symbol already exists in the table
      */
     public void add(final String scope, final Symbol symbol) throws DuplicateSymbolException {
-        if (symbolTable.get(scope) == null) {
-            Map<String, Symbol> scopeTable = new HashMap<>();
-            symbolTable.put(scope, scopeTable);
-        }
+        symbolTable.computeIfAbsent(scope, k -> new HashMap<>());
         if (symbolTable.get(scope).get(symbol.getId()) != null) {
             String message = String.format(
                 "Symbol '%s' already exists in scope '%s'",

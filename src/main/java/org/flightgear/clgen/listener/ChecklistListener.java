@@ -87,7 +87,7 @@ public class ChecklistListener extends AbstractListener {
     public void enterNormalCheck(final CLGenParser.NormalCheckContext ctx) {
         String n = unquote(ctx.getChild(2).getText());
         String s = unquote(ctx.getChild(4).getText());
-        Check check = null;
+        Check check;
         if (items.size() > 0) {
             Item item = items.get(n);
             if (item == null) {

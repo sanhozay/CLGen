@@ -62,7 +62,7 @@ public class DotVisitor extends AbstractVisitor {
             .append("    pad=0.5;\n")
             .append("    ranksep=0.35;\n");
         if (ast.getProject() != null)
-            dot.append("    label=\"\\" + "n" + ast.getProject() + "\";\n");
+            dot.append("    label=\"\\" + "n").append(ast.getProject()).append("\";\n");
         dot.append("    node [fontsize=12];\n")
             .append("    node [fontcolor=white,fontname=\"helvetica-bold\"];\n")
             .append("    node [shape=Mrecord,width=2.75,style=filled];\n");
@@ -93,7 +93,7 @@ public class DotVisitor extends AbstractVisitor {
             hue, quote(checklist.getTitle())
         );
         dot.append(s);
-        edges.append("    " + quote(checklist.getTitle()));
+        edges.append("    ").append(quote(checklist.getTitle()));
         int totalChecks = 0;
         for (Page page : checklist.getPages())
             for (Check check : page.getChecks())
@@ -126,7 +126,7 @@ public class DotVisitor extends AbstractVisitor {
                 index++, escape(check.getItem().getName())
             ));
             for (String value : check.getAdditionalValues())
-                sb.append("&#92;n" + escape(value));
+                sb.append("&#92;n").append(escape(value));
             sb.append(String.format("|%s}\"];\n",
                 escape(check.getState().getName())
             ));
