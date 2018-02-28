@@ -60,6 +60,15 @@ task release(type: Zip, dependsOn: build) {
     }
 }
 
+task vim(type: Zip) {
+    destinationDir = file('build/release')
+    appendix = 'Vim'
+    into("start") {
+        from fileTree('support/vim')
+        include('**/*.vim')
+    }
+}
+
 release.doLast { zip ->
     ant.checksum file: zip.archivePath
 }
