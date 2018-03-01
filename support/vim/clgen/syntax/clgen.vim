@@ -4,32 +4,60 @@
 " URL:              https://github.com/sanhozay/CLGen
 " Latest Revision:  2018-02-28
 
-if !exists("main_syntax")
-    if version < 600
-        syntax clear
-    elseif exists("b:current_syntax")
-        finish
-    endif
-    let main_syntax = 'clgen'
+if exists("b:current_syntax")
+    finish
 endif
 
-syntax match   Comment                '#.*$' contains=Todo
-syntax match   Todo                   'TODO.*$' contained
+let s:cpo_save = &cpo
+set cpo&vim
 
-syntax keyword Keyword                project author item state marker if
-syntax keyword Keyword                checklist check text page
-syntax keyword Boolean                true false
+syn case match
 
-syntax region  String                 start='"' end='"' contains=clgEscaped
-syntax match   clgEscaped             contained '\\[\\\"]'
+" Comments
+syn match   clgComment              '#.*$' contains=clgTodo
+syn match   clgTodo                 contained 'TODO.*$'
 
-syntax match   Identifier             '\I\i*'
-syntax match   Number                 '[+-]\?\d\+'
-syntax match   Float                  '[+-]\?\d\+\(\.\d*\)\?'
+" Keywords
+syn keyword clgKeyword              project author item state marker if
+syn keyword clgKeyword              checklist check text page
+syn keyword clgBoolean              true false
 
-syntax region  clgCommandRegion       start='fgcommand' end=';' contains=ALLBUT,Comment,Todo
-syntax keyword clgCommand             contained fgcommand
-syntax region  Define                 contained start=',\s*' end='='me=s-1
+" Strings
+syn region  clgString               start='"' end='"' contains=clgEscaped
+syn match   clgEscaped              contained '\\[\\\"]'
 
-highlight default link clgCommand     Keyword
-highlight default link clgEscaped     String
+" Other tokens
+syn match   clgIdentifier           '\I\i*'
+syn match   clgNumber               '[+-]\?\d\+'
+syn match   clgFloat                '[+-]\?\d\+\(\.\d*\)\?'
+
+
+" fgcommand
+syn cluster clgCommandComponents    contains=clgCommandName,clgCommandArgs
+syn cluster clgCommandValues        contains=clgIdentifier,clgString,clgBoolean,clgNumber,clgFloat
+
+syn keyword Keyword                 fgcommand nextgroup=clgCommandSpec skipwhite skipnl
+syn region  clgCommandSpec          contained start='(' end=';' contains=@clgCommandComponents
+syn region  clgCommandName          contained start='"' end='"' nextgroup=clgCommandArgs skipwhite skipnl
+syn region  clgCommandArgs          contained start=',' end=')' contains=clgCommandKey,@clgCommandValues
+syn region  clgCommandKey           contained start=','ms=s+1 end='='me=s-1
+
+" Highlight links
+hi def link clgComment              Comment
+hi def link clgTodo                 Todo
+hi def link clgKeyword              Keyword
+hi def link clgBoolean              Boolean
+hi def link clgString               String
+hi def link clgEscaped              String
+hi def link clgIdentifier           Identifier
+hi def link clgNumber               Number
+hi def link clgFloat                Float
+
+hi def link clgCommandName          Function
+hi def link clgCommandKey           Define
+
+let b:current_syntax = 'clgen'
+
+let &cpo = s:cpo_save
+unlet s:cpo_save
+
