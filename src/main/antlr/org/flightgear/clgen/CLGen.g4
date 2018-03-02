@@ -44,7 +44,7 @@ declaration
     ;
 
 state
-    : 'state' '(' STRING (',' stateCondition)? ')' bindingDefinition
+    : 'state' '(' STRING (',' stateCondition)? ')' (binding | compoundBinding)
     ;
 
 stateCondition
@@ -77,17 +77,16 @@ terminal
     | ID                                                    # IdTerminal
     ;
 
-bindingDefinition
-    : '{' (binding ';')* '}'
-    | binding? ';'
-    | binding? {
-        notifyErrorListeners("Unexpected input, did you forget a ';'?");
-    }
+binding
+    : bindingAction? ';'                                    # SimpleBinding
+    | 'if' '(' bindingCondition ')' bindingAction? ';'      # ConditionalBinding
+    | 'if' '(' bindingCondition ')' '{'
+          (bindingAction? ';')*
+      '}'                                                   # ConditionalCompoundBinding
     ;
 
-binding
-    : bindingAction                                         # SimpleBinding
-    | 'if' '(' bindingCondition ')' bindingAction           # ConditionalBinding
+compoundBinding
+    : '{' binding* '}'
     ;
 
 bindingCondition

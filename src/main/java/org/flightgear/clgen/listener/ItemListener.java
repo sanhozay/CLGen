@@ -248,6 +248,18 @@ public class ItemListener extends AbstractListener {
     }
 
     @Override
+    public void enterConditionalCompoundBinding(final ConditionalCompoundBindingContext ctx) {
+        bindingCondition = new Condition();
+        conditions.push(bindingCondition);
+    }
+
+    @Override
+    public void exitConditionalCompoundBinding(final ConditionalCompoundBindingContext ctx) {
+        conditions.pop();
+        bindingCondition = null;
+    }
+
+    @Override
     public void enterAssignInt(final AssignIntContext ctx) {
         Symbol symbol = lookup((Token)ctx.getChild(0).getPayload());
         Integer value = Integer.parseInt(ctx.getChild(2).getText());
