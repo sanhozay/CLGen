@@ -115,14 +115,14 @@ public class ItemListener extends AbstractListener {
     }
 
     @Override
-    public void enterConditionRoot(final ConditionRootContext ctx) {
+    public void enterStateCondition(final StateConditionContext ctx) {
         Condition condition = new Condition();
         state.setCondition(condition);
         conditions.push(condition);
     }
 
     @Override
-    public void exitConditionRoot(final ConditionRootContext ctx) {
+    public void exitStateCondition(final StateConditionContext ctx) {
         conditions.pop();
     }
 

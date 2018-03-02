@@ -1,76 +1,36 @@
 grammar CLGen;
 
 // ----------------------------------------------------------------------------
-// Lexer
-// ----------------------------------------------------------------------------
-
-fragment IDCHR: [-A-Za-z_];
-fragment DIGIT: [0-9];
-
-BOOLEAN: ('true'|'false') ;
-
-COMMENT: '#' .*? '\n' -> skip;
-
-OP: ('=='|'!='|'<'|'>'|'<='|'>=');
-
-ID: IDCHR (IDCHR | DIGIT)*;
-
-INTEGER: '-'? DIGIT+;
-
-DOUBLE: '-'? DIGIT+ '.' DIGIT+;
-
-fragment ESC: '\\' ["\\];
-STRING: '"' (ESC | .)*? '"';
-
-WHITESPACE: [ \t\n\r] -> skip;
-
-ANYCHAR: . ;
-
-// ----------------------------------------------------------------------------
 // Parser
 // ----------------------------------------------------------------------------
 
 specification
-    : project? items checklists
+    : project? (declaration | item | checklist)*
     ;
+
+// ----------------------------------------------------------------------------
+// Project
+// ----------------------------------------------------------------------------
 
 project
-    : 'project' '(' STRING ')' projectDefinition
+    : 'project' '(' STRING ')' projectProperties
     ;
 
-projectDefinition
-    : '{' projectElements '}'
-    | projectElement? ';'
-    | projectElement? {
-        notifyErrorListeners("Unexpected input, did you forget a ';'?");
-    }
+projectProperties
+    : '{' (projectProperty ';')* '}'
+    | projectProperty? ';'
     ;
 
-projectElements
-    : /* empty */
-    | projectElement ';' projectElements
-    | projectElement projectElements {
-        notifyErrorListeners("Unexpected input, did you forget a ';'?");
-    }
-    ;
-
-projectElement
+projectProperty
     : 'author' '(' STRING ')'                               # Author
     ;
 
-items
-    : /* empty */
-    | item items
-    | declaration items
-    ;
+// ----------------------------------------------------------------------------
+// Item
+// ----------------------------------------------------------------------------
 
 item
-    : 'item' '(' STRING ')' '{' itemElements '}'
-    ;
-
-itemElements
-    : /* empty */
-    | itemElement itemElements
+    : 'item' '(' STRING ')' '{' itemElement* '}'
     ;
 
 itemElement
@@ -81,16 +41,13 @@ itemElement
 
 declaration
     : ID '=' STRING ';'
-    | ID '=' STRING {
-        notifyErrorListeners("Unexpected input, did you forget a ';'?");
-    }
     ;
 
 state
-    : 'state' '(' STRING (',' conditionRoot)? ')' bindingDefinition
+    : 'state' '(' STRING (',' stateCondition)? ')' bindingDefinition
     ;
 
-conditionRoot
+stateCondition
     : condition
     ;
 
@@ -121,17 +78,9 @@ terminal
     ;
 
 bindingDefinition
-    : '{' bindings '}'
+    : '{' (binding ';')* '}'
     | binding? ';'
     | binding? {
-        notifyErrorListeners("Unexpected input, did you forget a ';'?");
-    }
-    ;
-
-bindings
-    : /* empty */
-    | binding ';' bindings
-    | binding bindings {
         notifyErrorListeners("Unexpected input, did you forget a ';'?");
     }
     ;
@@ -167,51 +116,57 @@ parameter
 
 marker
     : 'marker' '(' number ',' number ',' number ',' number ')' ';'
-    | 'marker' '(' number ',' number ',' number ',' number ')' {
-        notifyErrorListeners("Unexpected input, did you forget a ';'?");
-    }
     ;
 
 number
     : (INTEGER | DOUBLE)
     ;
 
-checklists
-    : /* empty */
-    | checklist checklists
-    ;
+// ----------------------------------------------------------------------------
+// Checklist
+// ----------------------------------------------------------------------------
 
 checklist
-    : 'checklist' '(' STRING ')' '{' check_definition '}'
-    ;
-
-check_definition
-    : pages
-    | checks
+    : 'checklist' '(' STRING ')' '{' checks '}'
     ;
 
 checks
-    : /* empty */
-    | check checks
-    ;
-
-pages
-    : /* empty */
-    | page pages
-    | page 'check' {
+    : page*
+    | check*
+    | page check {
         notifyErrorListeners("Checks in paged checklists must be defined inside a page");
     }
     ;
 
 page
-    : 'page' '{' checks '}'
+    : 'page' '{' check* '}'
     ;
 
 check
     : 'text' '(' ')' ';'                                    # Spacer
     | 'text' '(' STRING ')' ';'                             # Subtitle
     | 'check' '(' STRING ',' STRING (',' STRING)* ')' ';'   # NormalCheck
-    | 'check' '(' STRING ',' STRING (',' STRING)* ')' {
-        notifyErrorListeners("Unexpected input, did you forget a ';'?");
-    }                                                       # Error
     ;
+
+// ----------------------------------------------------------------------------
+// Lexer
+// ----------------------------------------------------------------------------
+
+fragment IDCHR  : [-A-Za-z_];
+fragment DIGIT  : [0-9];
+fragment ESC    : '\\' ["\\];
+
+COMMENT         : '#' .*? '\n' -> skip;
+
+BOOLEAN         : ('true'|'false');
+DOUBLE          : '-'? DIGIT+ '.' DIGIT+;
+INTEGER         : '-'? DIGIT+;
+STRING          : '"' (ESC | .)*? '"';
+
+OP              : ('=='|'!='|'<'|'>'|'<='|'>=');
+
+ID              : IDCHR (IDCHR | DIGIT)*;
+
+WHITESPACE      : [ \t\n\r] -> skip;
+
+ANYCHAR         : . ;
