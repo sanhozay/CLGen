@@ -36,7 +36,7 @@ syn match   clgFloat                '[+-]\?\d\+\(\.\d*\)\?'
 syn cluster clgCommandComponents    contains=clgCommandName,clgCommandArgs
 syn cluster clgCommandValues        contains=clgIdentifier,clgString,clgBoolean,clgNumber,clgFloat
 
-syn keyword Keyword                 fgcommand nextgroup=clgCommandSpec skipwhite skipnl
+syn keyword clgKeyword              fgcommand nextgroup=clgCommandSpec skipwhite skipnl
 syn region  clgCommandSpec          contained start='(' end=';' contains=@clgCommandComponents
 syn region  clgCommandName          contained start='"' end='"' nextgroup=clgCommandArgs skipwhite skipnl
 syn region  clgCommandArgs          contained start=',' end=')' contains=clgCommandKey,@clgCommandValues
