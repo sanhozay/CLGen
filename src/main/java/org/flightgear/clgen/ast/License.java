@@ -23,6 +23,7 @@ import java.util.Properties;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.flightgear.clgen.CLGenProperties;
@@ -39,14 +40,14 @@ public class License {
     private String author;
     private String title;
 
-    private final Template template;
+    private Template template;
 
     /**
      * Constructs a license.
      * <p>
-     * License variants are implemented using Velocity templates on the
-     * classpath. To add a new license, create a template in the
-     * src/main/resources source directory based on the gpl2.vm template.
+     * The license attempt to load a Velocity template called 'license.vm'
+     * from the working directory. If not found, it loads a template based on
+     * the variant parameter from the classpath.
      * <p>
      * Supported placeholders are:
      * <ul>
@@ -60,12 +61,19 @@ public class License {
      */
     public License(final String variant) {
         Properties p = new Properties();
-        p.put(RuntimeConstants.RESOURCE_LOADER, "classpath");
-        p.put("classpath.resource.loader.class",
-            ClasspathResourceLoader.class.getName()
-        );
+        p.put("runtime.log.logsystem.class", "org.apache.velocity.runtime.log.NullLogChute");
         VelocityEngine velocity = new VelocityEngine(p);
-        template = velocity.getTemplate(variant + ".vm");
+        try {
+            template = velocity.getTemplate("license.vm");
+        } catch (ResourceNotFoundException e) {
+            p = new Properties();
+            p.put(RuntimeConstants.RESOURCE_LOADER, "classpath");
+            p.put("classpath.resource.loader.class",
+                    ClasspathResourceLoader.class.getName()
+            );
+            velocity = new VelocityEngine(p);
+            template = velocity.getTemplate(variant + ".vm");
+        }
     }
 
     /**

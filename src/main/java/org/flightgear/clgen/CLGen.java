@@ -138,11 +138,10 @@ class CLGen {
             ast.accept(usageVisitor);
             warnings += usageVisitor.getNumberOfWarnings();
 
-            String wrapper = System.getProperty("wrapper");
-            if (wrapper == null)
-                ast.accept(new XmlVisitor(input.toAbsolutePath().getParent()));
-            else
+            if (ast.isWrapper())
                 ast.accept(new MultiXmlVisitor(input.toAbsolutePath().getParent()));
+            else
+                ast.accept(new XmlVisitor(input.toAbsolutePath().getParent()));
 
             ast.accept(new DotVisitor(input.toAbsolutePath().getParent()));
             ast.accept(new PdfVisitor(input.toAbsolutePath().getParent()));

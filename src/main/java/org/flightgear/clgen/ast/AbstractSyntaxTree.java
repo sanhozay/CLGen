@@ -28,6 +28,7 @@ public class AbstractSyntaxTree implements Visitable {
 
     private String author;
     private String project;
+    private boolean wrapper = false;
 
     private final List<Checklist> checklists = new ArrayList<>();
 
@@ -67,6 +68,24 @@ public class AbstractSyntaxTree implements Visitable {
      */
     public void setAuthor(final String author) {
         this.author = author;
+    }
+
+    /**
+     * Gets whether multiple XML files should be generated with a wrapper
+     *
+     * @return true if multiple wrapped XML output is required
+     */
+    public boolean isWrapper() {
+        return wrapper;
+    }
+
+    /**
+     * Sets whether multiple XML files should be generated with a wrapper
+     *
+     * @param wrapper the wrapper flag
+     */
+    public void setWrapper(boolean wrapper) {
+        this.wrapper = wrapper;
     }
 
     /**
