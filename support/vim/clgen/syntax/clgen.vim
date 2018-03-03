@@ -2,7 +2,7 @@
 " Language:         CLGen
 " Maintainer:       Richard Senior
 " URL:              https://github.com/sanhozay/CLGen
-" Latest Revision:  2018-02-28
+" Latest Revision:  2018-03-03
 
 if exists("b:current_syntax")
     finish
@@ -18,7 +18,7 @@ syn match   clgComment              '#.*$' contains=clgTodo
 syn match   clgTodo                 contained 'TODO.*$'
 
 " Keywords
-syn keyword clgKeyword              project author item state marker if
+syn keyword clgKeyword              project author wrapper item state marker if
 syn keyword clgKeyword              checklist check text page
 syn keyword clgBoolean              true false
 

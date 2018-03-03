@@ -246,15 +246,24 @@ rendered to an image using a tool like Graphviz.
 ### How can I create multiple checklist XML files with a wrapper?
 
 By default, CLGen creates a single XML output file called `checklists.xml`. To
-create multiple files, edit the `clgen` script (Linux/Mac OS) or the `clgen.bat`
-file (Windows) and add an additional argument to the `java` command:
+create multiple files, add a wrapper directive in the project definition of
+your CLGen source file:
 
-    java -Dwrapper -jar ...
+    project("MyProject") {
+        author("My Name");
+        wrapper(true);
+    }
 
 Running CLGen will now create a wrapper XML file called `checklists.xml` that
 includes separate XML files, one for each checklist. These included XML files
 are named based on the name of the checklist. So a checklist "Before Starting
 Engines" will create an XML file called `before-starting-engines.xml`.
+
+### Can I get syntax highlighting in my CLGen source files?
+
+Yes. If you use Vim. Refer to the README in the `support` directory.
+
+If you would like to add support for another editor, pull requests are welcome.
 
 ## Checklist Definition Language
 
@@ -287,8 +296,9 @@ versions of keywords can be used as aliases.
 `item`  
 `marker`  
 `project`  
-`state` 
-`text`   
+`state`  
+`text`  
+`wrapper`  
 
 ### Overall Structure
 
@@ -299,19 +309,31 @@ as copyright holder.
 
     project("My Checklists" {
         author("Richard Senior");
+        wrapper(false);
     }
 
-The project definition can omit the author definition:
+The project definition can omit the author and wrapper definitions:
 
     project("My Checklists");
 
-Therafter, global aliases and item definitions must come before checklist 
-definitions.
+The default for the wrapper is false, which means CLGen will create a single XML
+file containing all your checklists. If you prefer multiple XML files, one for
+each checklist, set wrapper to true, e.g.
 
-Globals can appear anywhere outside an item definition and must be defined
-before they are used. It usually makes sense to define globals near the top of
-the file, after the project definition but before any item declarations. Use
-of upper case for global names is recommended, but not mandatory.
+    project("My Checklists")
+        wrapper(true);
+
+Therafter, global declarations, items and checklists can appear in any order but
+declarations must be made before they are used in an item. You can put your
+checklists above your items or below, it doesn't matter.
+
+Globals can appear anywhere outside an item definition. It usually makes sense
+to define globals near the top of the file, before any item declarations. Use of
+upper case for global names is recommended, but not mandatory.
+
+    checklist("Before Starting Engines") {
+        ...
+    }
 
     AUTO = "sim/checklists/auto/active";
 
@@ -320,10 +342,6 @@ of upper case for global names is recommended, but not mandatory.
     }
 
     item("Navigation Lights") {
-        ...
-    }
-
-    checklist("Before Starting Engines") {
         ...
     }
 
@@ -466,11 +484,19 @@ Sometimes conditional bindings are useful:
             pitchSelect = 5.0;
         if (variant != "pup100")
             pitchSelect = 6.0;
-        }
     }
 
-Note that the `if` statement translates to a condition within the binding. As 
-such it can only control one binding. Compound if statements are not allowed.
+Conditional bindings can contain multiple bindings if required, e.g. on a
+multiple-engine aircraft:
+
+    if (variant == "777-200") {
+        t0 = 0.8;
+        t1 = 0.8;
+    }
+    if (variant == "777-300") {
+        t0 = 0.85;
+        t1 = 0.85;
+    }
 
 One `marker` is allowed per item and takes the following form:
 

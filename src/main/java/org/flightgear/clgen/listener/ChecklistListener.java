@@ -68,6 +68,11 @@ public class ChecklistListener extends AbstractListener {
     }
 
     @Override
+    public void enterWrapper(final CLGenParser.WrapperContext ctx) {
+        ast.setWrapper("true".equals(ctx.getChild(2).getText()));
+    }
+
+    @Override
     public void enterChecklist(final CLGenParser.ChecklistContext ctx) {
         checklist = new Checklist(unquote(ctx.getChild(2).getText()));
     }

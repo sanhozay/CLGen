@@ -7,6 +7,7 @@
 #
 project("Example Checklists") {
     author("Flightgear");
+    wrapper(true);
 }
 
 #------------------------------------------------------------------------------

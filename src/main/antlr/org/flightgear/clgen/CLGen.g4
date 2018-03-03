@@ -23,6 +23,7 @@ projectProperties
 
 projectProperty
     : 'author' '(' STRING ')'                               # Author
+    | 'wrapper' '(' BOOLEAN ')'                             # Wrapper
     ;
 
 // ----------------------------------------------------------------------------
