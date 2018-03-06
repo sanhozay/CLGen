@@ -1,4 +1,5 @@
 setlocal shiftwidth=4
 setlocal softtabstop=4
-set cindent
+setlocal cindent
+setlocal makeprg=clgen\ %
 
