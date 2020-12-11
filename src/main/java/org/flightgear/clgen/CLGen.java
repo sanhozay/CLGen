@@ -29,6 +29,7 @@ import org.flightgear.clgen.CLGenParser.SpecificationContext;
 import org.flightgear.clgen.ast.AbstractSyntaxTree;
 import org.flightgear.clgen.ast.Item;
 import org.flightgear.clgen.backend.DotVisitor;
+import org.flightgear.clgen.backend.CListVisitor;
 import org.flightgear.clgen.backend.MultiXmlVisitor;
 import org.flightgear.clgen.backend.PdfVisitor;
 import org.flightgear.clgen.backend.UsageVisitor;
@@ -143,6 +144,7 @@ class CLGen {
             else
                 ast.accept(new XmlVisitor(input.toAbsolutePath().getParent()));
 
+            ast.accept(new CListVisitor(input.toAbsolutePath().getParent()));
             ast.accept(new DotVisitor(input.toAbsolutePath().getParent()));
             ast.accept(new PdfVisitor(input.toAbsolutePath().getParent()));
             if (warnings > 0)
