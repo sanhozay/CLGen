@@ -19,6 +19,9 @@ package org.flightgear.clgen.backend;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.nio.file.Path;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import org.flightgear.clgen.GeneratorException;
 import org.flightgear.clgen.ast.AbstractSyntaxTree;
@@ -44,14 +47,16 @@ import com.lowagie.text.pdf.PdfWriter;
 public class PdfVisitor extends AbstractVisitor {
 
     private static final Font H1 = new Font(Font.COURIER, 14.0f, Font.BOLD);
-    private static final Font H2 = new Font(Font.COURIER, 12.0f, Font.BOLD);
-    private static final Font P = new Font(Font.COURIER, 12.0f, Font.NORMAL);
-    private static final Font B = new Font(Font.COURIER, 12.0f, Font.BOLD);
+    private static final Font H2 = new Font(Font.COURIER, 10.0f, Font.BOLD);
+    private static final Font S = new Font(Font.COURIER, 8.0f, Font.NORMAL);
+    private static final Font P = new Font(Font.COURIER, 10.0f, Font.NORMAL);
+    private static final Font B = new Font(Font.COURIER, 10.0f, Font.BOLD);
 
     private static final float MARGIN = 70.0f;
 
-    private final Path filename;
     private final Document document = new Document();
+    private final Footer footer = new Footer();
+    private final Path filename;
 
     /**
      * Constructs a PDF visitor with the path to the output directory.
@@ -64,7 +69,7 @@ public class PdfVisitor extends AbstractVisitor {
             filename = outputDir.resolve("checklists.pdf");
             FileOutputStream out = new FileOutputStream(filename.toFile());
             PdfWriter writer = PdfWriter.getInstance(document, out);
-            writer.setPageEvent(new Footer());
+            writer.setPageEvent(footer);
             document.open();
         } catch (FileNotFoundException | DocumentException e) {
             document.close();
@@ -77,9 +82,10 @@ public class PdfVisitor extends AbstractVisitor {
         try {
             String title = ast.getProject() != null ? ast.getProject() : "Checklists";
             Paragraph t = new Paragraph(title.toUpperCase(), H1);
-            t.setSpacingAfter(12.0f);
-            t.setAlignment(Element.ALIGN_CENTER);
+            t.setSpacingAfter(10.0f);
+            t.setAlignment(Element.ALIGN_LEFT);
             document.add(t);
+            footer.date = new Date();
         } catch (DocumentException e) {
             document.close();
             throw new GeneratorException(e);
@@ -96,7 +102,7 @@ public class PdfVisitor extends AbstractVisitor {
     public void enter(final Checklist checklist) {
         try {
             Paragraph p = new Paragraph(checklist.getTitle().toUpperCase(), H2);
-            p.setSpacingBefore(24.0f);
+            p.setSpacingBefore(20.0f);
             document.add(p);
         } catch (DocumentException e) {
             document.close();
@@ -111,11 +117,11 @@ public class PdfVisitor extends AbstractVisitor {
             String s = check.getState() != null ? nvl(check.getState().getName()) : "";
             String line = String.format("%s %s %s", i, dots(i, s, normalTextWidth() - 2), s);
             Paragraph p = new Paragraph(line, empty(s) ? B : P);
-            p.setSpacingBefore(6.0f);
+            p.setSpacingBefore(empty(s) ? 10.0f : 5.0f);
             document.add(p);
             for (String value : check.getAdditionalValues()) {
                 p = new Paragraph(value, P);
-                p.setSpacingBefore(6.0f);
+                p.setSpacingBefore(5.0f);
                 p.setAlignment(Element.ALIGN_RIGHT);
                 document.add(p);
             }
@@ -158,15 +164,28 @@ public class PdfVisitor extends AbstractVisitor {
 
     private static final class Footer extends PdfPageEventHelper {
 
+        Date date;
+
+        private String formattedDate() {
+            DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault());
+            return df.format(date);
+        }
+
         @Override
         public void onEndPage(final PdfWriter writer, final Document document) {
+            Phrase datestamp = new Phrase(formattedDate(), S);
             Phrase pageNo = new Phrase(Integer.toString(document.getPageNumber()), P);
-            float x = document.getPageSize().getWidth() / 2;
+            float r = document.getPageSize().getWidth() - MARGIN;
             float y = MARGIN / 2;
             ColumnText.showTextAligned(
                 writer.getDirectContent(),
-                Element.ALIGN_CENTER,
-                pageNo, x, y, 0f
+                Element.ALIGN_RIGHT,
+                pageNo, r, y, 0f
+            );
+            ColumnText.showTextAligned(
+                writer.getDirectContent(),
+                Element.ALIGN_LEFT,
+                datestamp, MARGIN, y, 0f
             );
         }
 
