@@ -35,7 +35,8 @@ public class CListVisitor extends AbstractVisitor {
     private final Path outputDir;
     private final StringBuilder clist = new StringBuilder();
 
-    private boolean first = true;
+    private boolean firstCheck = true;
+    private boolean firstChecklist = true;
 
     /**
      * Constructs a CList visitor with the path to the output directory.
@@ -67,7 +68,7 @@ public class CListVisitor extends AbstractVisitor {
 
     @Override
     public void enter(final Checklist checklist) {
-        if (!first) {
+        if (!firstChecklist) {
             clist.append("sw_continue:")
                 .append(checklist.getTitle())
                 .append("\n");
@@ -80,24 +81,24 @@ public class CListVisitor extends AbstractVisitor {
             .append(":")
             .append(checklist.getTitle())
             .append("\n");
-        clist.append("sw_item:")
-            .append("Beginning ")
-            .append(checklist.getTitle())
-            .append(" checklist|OK")
+        clist.append("sw_itemvoid:")
+            .append(checklist.getTitle().toUpperCase())
             .append("\n");
-        clist.append("sw_itemvoid:\n");
-        first = false;
+        firstChecklist = false;
+        firstCheck = true;
     }
 
     @Override
     public void enter(final Check check) {
         if (check.isSpacer()) {
-            clist.append("sw_itemvoid:\n");
-            return;
-        }
-        if (check.isSubtitle()) {
-            clist.append("sw_itemvoid:\n")
-            .append("sw_itemvoid:")
+            if (!firstCheck) {
+                clist.append("sw_itemvoid:\n");
+            }
+        } else if (check.isSubtitle()) {
+            if (!firstCheck) {
+                clist.append("sw_itemvoid:\n");
+            }
+            clist.append("sw_itemvoid:")
             .append(check.getItem().getName())
             .append("\n");
         } else {
@@ -110,6 +111,7 @@ public class CListVisitor extends AbstractVisitor {
                 clist.append("sw_itemvoid:").append(value).append("\n");
             }
         }
+        firstCheck = false;
     }
 
 }
